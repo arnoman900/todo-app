@@ -34,9 +34,15 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             task TEXT NOT NULL,
             user_id INTEGER NOT NULL,
+            done INTEGER DEFAULT 0,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     """)
+    # Add done column if it doesn't exist yet
+    try:
+        conn.execute("ALTER TABLE tasks ADD COLUMN done INTEGER DEFAULT 0")
+    except:
+        pass  # column already exists, no problem
     conn.commit()
     conn.close()
 
@@ -124,6 +130,18 @@ def delete(id):
     conn = get_db()
     conn.execute("DELETE FROM tasks WHERE id = ? AND user_id = ?", (id, current_user.id))
     conn.commit()
+    conn.close()
+    return redirect(url_for("home"))
+
+@app.route("/toggle/<int:id>")
+@login_required
+def toggle(id):
+    conn = get_db()
+    task = conn.execute("SELECT * FROM tasks WHERE id = ? AND user_id = ?", (id, current_user.id)).fetchone()
+    if task:
+        new_status = 0 if task["done"] else 1
+        conn.execute("UPDATE tasks SET done = ? WHERE id = ?", (new_status, id))
+        conn.commit()
     conn.close()
     return redirect(url_for("home"))
 

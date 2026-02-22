@@ -34,6 +34,16 @@
             border-radius: 5px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+        }
+        .done-text {
+            text-decoration: line-through;
+            color: gray;
+        }
+        .task-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         a { color: red; text-decoration: none; }
         .header {
@@ -44,6 +54,11 @@
         .logout {
             color: gray;
             font-size: 14px;
+        }
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -61,7 +76,15 @@
     <ul>
         {% for todo in todos %}
         <li>
-            {{ todo["task"] }}
+            <div class="task-left">
+                <a href="/toggle/{{ todo['id'] }}">
+                    <input type="checkbox" onclick="window.location='/toggle/{{ todo['id'] }}'" 
+                    {{ 'checked' if todo['done'] else '' }}>
+                </a>
+                <span class="{{ 'done-text' if todo['done'] else '' }}">
+                    {{ todo["task"] }}
+                </span>
+            </div>
             <a href="/delete/{{ todo['id'] }}">❌</a>
         </li>
         {% endfor %}
