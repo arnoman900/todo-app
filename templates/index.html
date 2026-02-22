@@ -36,10 +36,22 @@
             justify-content: space-between;
         }
         a { color: red; text-decoration: none; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logout {
+            color: gray;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <h1>📝 My To-Do List</h1>
+    <div class="header">
+        <h1>📝 My To-Do List</h1>
+        <a class="logout" href="/logout">Logout ({{ current_user.username }})</a>
+    </div>
 
     <form action="/add" method="POST">
         <input type="text" name="task" placeholder="Enter a task..." required>
