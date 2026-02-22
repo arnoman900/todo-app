@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            background-color: #f4f4f4;
+        }
+        h1 { color: #333; }
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        ul { list-style: none; padding: 0; }
+        li {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        a { color: red; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <h1>📝 My To-Do List</h1>
+
+    <form action="/add" method="POST">
+        <input type="text" name="task" placeholder="Enter a task..." required>
+        <button type="submit">Add</button>
+    </form>
+
+    <ul>
+        {% for todo in todos %}
+        <li>
+            {{ todo["task"] }}
+            <a href="/delete/{{ todo['id'] }}">❌</a>
+        </li>
+        {% endfor %}
+    </ul>
+
+    {% if todos|length == 0 %}
+        <p style="color: gray;">No tasks yet. Add one above!</p>
+    {% endif %}
+</body>
+</html>
