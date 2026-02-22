@@ -3,6 +3,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask_bcrypt import Bcrypt
 import psycopg2
 import psycopg2.extras
+import sqlite3
 import os
 
 app = Flask(__name__)
@@ -17,31 +18,63 @@ login_manager.login_view = "login"
 # -------------------------
 
 def get_db():
-    conn = psycopg2.connect(os.environ.get("DATABASE_URL"))
-    return conn
+    database_url = os.environ.get("DATABASE_URL")
+    if database_url:
+        conn = psycopg2.connect(database_url)
+        return conn, True   # True = is postgres
+    else:
+        conn = sqlite3.connect("todo.db")
+        conn.row_factory = sqlite3.Row
+        return conn, False  # False = is sqlite
+
+def query(cur, is_postgres, sql, params=()):
+    # PostgreSQL uses %s, SQLite uses ?
+    if not is_postgres:
+        sql = sql.replace("%s", "?")
+    cur.execute(sql, params)
 
 def init_db():
-    conn = get_db()
+    conn, is_postgres = get_db()
     cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS tasks (
-            id SERIAL PRIMARY KEY,
-            task TEXT NOT NULL,
-            user_id INTEGER NOT NULL,
-            done INTEGER DEFAULT 0,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )
-    """)
+    if is_postgres:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS tasks (
+                id SERIAL PRIMARY KEY,
+                task TEXT NOT NULL,
+                user_id INTEGER NOT NULL,
+                done INTEGER DEFAULT 0,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        """)
+    else:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS tasks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                task TEXT NOT NULL,
+                user_id INTEGER NOT NULL,
+                done INTEGER DEFAULT 0,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        """)
     conn.commit()
     cur.close()
     conn.close()
+
+init_db()  # runs every time the app starts
 
 # -------------------------
 # User class for Flask-Login
@@ -54,9 +87,12 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    conn, is_postgres = get_db()
+    if is_postgres:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    else:
+        cur = conn.cursor()
+    query(cur, is_postgres, "SELECT * FROM users WHERE id = %s", (user_id,))
     user = cur.fetchone()
     cur.close()
     conn.close()
@@ -71,9 +107,12 @@ def load_user(user_id):
 @app.route("/")
 @login_required
 def home():
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT * FROM tasks WHERE user_id = %s", (current_user.id,))
+    conn, is_postgres = get_db()
+    if is_postgres:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    else:
+        cur = conn.cursor()
+    query(cur, is_postgres, "SELECT * FROM tasks WHERE user_id = %s", (current_user.id,))
     todos = cur.fetchall()
     cur.close()
     conn.close()
@@ -86,9 +125,9 @@ def register():
         password = request.form.get("password")
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
         try:
-            conn = get_db()
+            conn, is_postgres = get_db()
             cur = conn.cursor()
-            cur.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
+            query(cur, is_postgres, "INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
             conn.commit()
             cur.close()
             conn.close()
@@ -103,9 +142,12 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        conn = get_db()
-        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+        conn, is_postgres = get_db()
+        if is_postgres:
+            cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        else:
+            cur = conn.cursor()
+        query(cur, is_postgres, "SELECT * FROM users WHERE username = %s", (username,))
         user = cur.fetchone()
         cur.close()
         conn.close()
@@ -126,9 +168,9 @@ def logout():
 def add():
     task = request.form.get("task")
     if task:
-        conn = get_db()
+        conn, is_postgres = get_db()
         cur = conn.cursor()
-        cur.execute("INSERT INTO tasks (task, user_id) VALUES (%s, %s)", (task, current_user.id))
+        query(cur, is_postgres, "INSERT INTO tasks (task, user_id) VALUES (%s, %s)", (task, current_user.id))
         conn.commit()
         cur.close()
         conn.close()
@@ -137,9 +179,9 @@ def add():
 @app.route("/delete/<int:id>")
 @login_required
 def delete(id):
-    conn = get_db()
+    conn, is_postgres = get_db()
     cur = conn.cursor()
-    cur.execute("DELETE FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
+    query(cur, is_postgres, "DELETE FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
     conn.commit()
     cur.close()
     conn.close()
@@ -148,18 +190,20 @@ def delete(id):
 @app.route("/toggle/<int:id>")
 @login_required
 def toggle(id):
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT * FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
+    conn, is_postgres = get_db()
+    if is_postgres:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    else:
+        cur = conn.cursor()
+    query(cur, is_postgres, "SELECT * FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
     task = cur.fetchone()
     if task:
         new_status = 0 if task["done"] else 1
-        cur.execute("UPDATE tasks SET done = %s WHERE id = %s", (new_status, id))
+        query(cur, is_postgres, "UPDATE tasks SET done = %s WHERE id = %s", (new_status, id))
         conn.commit()
     cur.close()
     conn.close()
     return redirect(url_for("home"))
 
 if __name__ == "__main__":
-    init_db()
     app.run(debug=False)
