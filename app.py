@@ -1,49 +1,46 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
-import sqlite3
+import psycopg2
+import psycopg2.extras
+import os
 
 app = Flask(__name__)
 app.secret_key = "my_super_secret_key_12345"
 bcrypt = Bcrypt(app)
 
-# Set up Flask-Login
 login_manager = LoginManager(app)
-login_manager.login_view = "login"  # redirect to login page if not logged in
+login_manager.login_view = "login"
 
 # -------------------------
 # Database helpers
 # -------------------------
 
 def get_db():
-    conn = sqlite3.connect("todo.db")
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(os.environ.get("DATABASE_URL"))
     return conn
 
 def init_db():
     conn = get_db()
-    conn.execute("""
+    cur = conn.cursor()
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
         )
     """)
-    conn.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             task TEXT NOT NULL,
             user_id INTEGER NOT NULL,
             done INTEGER DEFAULT 0,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     """)
-    # Add done column if it doesn't exist yet
-    try:
-        conn.execute("ALTER TABLE tasks ADD COLUMN done INTEGER DEFAULT 0")
-    except:
-        pass  # column already exists, no problem
     conn.commit()
+    cur.close()
     conn.close()
 
 # -------------------------
@@ -58,7 +55,10 @@ class User(UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    user = cur.fetchone()
+    cur.close()
     conn.close()
     if user:
         return User(user["id"], user["username"])
@@ -69,10 +69,13 @@ def load_user(user_id):
 # -------------------------
 
 @app.route("/")
-@login_required  # user must be logged in to see this page
+@login_required
 def home():
     conn = get_db()
-    todos = conn.execute("SELECT * FROM tasks WHERE user_id = ?", (current_user.id,)).fetchall()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM tasks WHERE user_id = %s", (current_user.id,))
+    todos = cur.fetchall()
+    cur.close()
     conn.close()
     return render_template("index.html", todos=todos)
 
@@ -84,8 +87,10 @@ def register():
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
         try:
             conn = get_db()
-            conn.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
+            cur = conn.cursor()
+            cur.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
             conn.commit()
+            cur.close()
             conn.close()
             flash("Account created! Please log in.", "success")
             return redirect(url_for("login"))
@@ -99,7 +104,10 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         conn = get_db()
-        user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = cur.fetchone()
+        cur.close()
         conn.close()
         if user and bcrypt.check_password_hash(user["password"], password):
             login_user(User(user["id"], user["username"]))
@@ -119,8 +127,10 @@ def add():
     task = request.form.get("task")
     if task:
         conn = get_db()
-        conn.execute("INSERT INTO tasks (task, user_id) VALUES (?, ?)", (task, current_user.id))
+        cur = conn.cursor()
+        cur.execute("INSERT INTO tasks (task, user_id) VALUES (%s, %s)", (task, current_user.id))
         conn.commit()
+        cur.close()
         conn.close()
     return redirect(url_for("home"))
 
@@ -128,8 +138,10 @@ def add():
 @login_required
 def delete(id):
     conn = get_db()
-    conn.execute("DELETE FROM tasks WHERE id = ? AND user_id = ?", (id, current_user.id))
+    cur = conn.cursor()
+    cur.execute("DELETE FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
     conn.commit()
+    cur.close()
     conn.close()
     return redirect(url_for("home"))
 
@@ -137,11 +149,14 @@ def delete(id):
 @login_required
 def toggle(id):
     conn = get_db()
-    task = conn.execute("SELECT * FROM tasks WHERE id = ? AND user_id = ?", (id, current_user.id)).fetchone()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
+    task = cur.fetchone()
     if task:
         new_status = 0 if task["done"] else 1
-        conn.execute("UPDATE tasks SET done = ? WHERE id = ?", (new_status, id))
+        cur.execute("UPDATE tasks SET done = %s WHERE id = %s", (new_status, id))
         conn.commit()
+    cur.close()
     conn.close()
     return redirect(url_for("home"))
 

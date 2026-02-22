@@ -2,3 +2,4 @@ flask
 gunicorn
 flask-login
 flask-bcrypt
+psycopg2-binary
