@@ -11,156 +11,27 @@
     </script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bg: #f0f2f5;
-            --card: #ffffff;
-            --border: #e4e7ec;
-            --text: #1a1d23;
-            --muted: #6b7280;
-            --accent: #3b82f6;
-            --green: #22c55e;
-            --red: #ef4444;
-            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
-        }
-        [data-theme="dark"] {
-            --bg: #0f1117;
-            --card: #1a1d23;
-            --border: #2d3038;
-            --text: #f1f5f9;
-            --muted: #94a3b8;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 40px 20px;
-            transition: background 0.3s, color 0.3s;
-        }
-
+        :root { --bg: #f0f2f5; --card: #ffffff; --border: #e4e7ec; --text: #1a1d23; --muted: #6b7280; --accent: #3b82f6; --green: #22c55e; --red: #ef4444; --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06); }
+        [data-theme="dark"] { --bg: #0f1117; --card: #1a1d23; --border: #2d3038; --text: #f1f5f9; --muted: #94a3b8; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 40px 20px; transition: background 0.3s, color 0.3s; }
         .container { max-width: 500px; margin: 0 auto; }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .header h1 { font-size: 24px; font-weight: 700; }
-        .header-right { display: flex; gap: 10px; }
-
-        a.back, .dark-btn {
-            padding: 8px 14px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--muted);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'DM Sans', sans-serif;
-        }
-        a.back:hover { color: var(--accent); border-color: var(--accent); }
-        .dark-btn:hover { color: var(--text); border-color: var(--text); }
-
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
-        }
-        .card-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 6px;
-        }
-        .card-desc {
-            font-size: 13px;
-            color: var(--muted);
-            margin-bottom: 18px;
-            line-height: 1.5;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--muted);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        input[type="email"] {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 15px;
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            outline: none;
-            transition: border-color 0.2s;
-            margin-bottom: 14px;
-        }
+        .header-right { display: flex; gap: 8px; }
+        .icon-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+        .icon-btn:hover { color: var(--text); border-color: var(--text); }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .card-desc { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+        label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input[type="email"] { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.2s; margin-bottom: 14px; }
         input[type="email"]:focus { border-color: var(--accent); }
-
-        .save-btn {
-            padding: 10px 24px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            font-family: 'DM Sans', sans-serif;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+        .save-btn { padding: 10px 24px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.2s; }
         .save-btn:hover { background: #2563eb; }
-
-        .flash-success {
-            background: #dcfce7;
-            color: #15803d;
-            border: 1px solid #86efac;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-
-        .info-box {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 12px 14px;
-            font-size: 13px;
-            color: #1d4ed8;
-            margin-top: 14px;
-            line-height: 1.5;
-        }
-        [data-theme="dark"] .info-box {
-            background: #1e3a5f;
-            border-color: #2563eb;
-            color: #93c5fd;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            border-radius: 99px;
-            font-size: 12px;
-            font-weight: 600;
-        }
+        .flash-success { background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-bottom: 16px; }
+        .info-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #1d4ed8; margin-top: 14px; line-height: 1.5; }
+        [data-theme="dark"] .info-box { background: #1e3a5f; border-color: #2563eb; color: #93c5fd; }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
         .status-badge.active { background: #dcfce7; color: #15803d; }
         .status-badge.inactive { background: #f3f4f6; color: #6b7280; }
         [data-theme="dark"] .status-badge.inactive { background: #2d3038; }
@@ -169,10 +40,11 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚙️ Settings</h1>
+            <h1>⚙️ <span data-i18n="settings">Settings</span></h1>
             <div class="header-right">
-                <button class="dark-btn" id="dark-btn" onclick="toggleDark()">🌙</button>
-                <a class="back" href="/">← Back</a>
+                <button class="icon-btn" id="lang-btn" onclick="toggleLang()">中文</button>
+                <button class="icon-btn" id="dark-btn" onclick="toggleDark()">🌙</button>
+                <a class="icon-btn" href="/">← <span data-i18n="back">Back</span></a>
             </div>
         </div>
 
@@ -182,55 +54,94 @@
             {% endfor %}
         {% endwith %}
 
-        <!-- Email reminders card -->
         <div class="card">
-            <div class="card-title">📧 Email Reminders</div>
+            <div class="card-title" data-i18n="email_reminders">📧 Email Reminders</div>
             <div class="card-desc">
-                Get an email the day before any task is due. Leave blank to disable reminders.
+                <span data-i18n="email_desc">Get an email the day before any task is due. Leave blank to disable reminders.</span>
                 <br><br>
-                Status:
+                <span data-i18n="status">Status</span>:
                 {% if user and user['email'] %}
-                    <span class="status-badge active">✅ Active — {{ user['email'] }}</span>
+                    <span class="status-badge active">✅ <span data-i18n="active">Active</span> — {{ user['email'] }}</span>
                 {% else %}
-                    <span class="status-badge inactive">○ Not set up</span>
+                    <span class="status-badge inactive">○ <span data-i18n="not_set">Not set up</span></span>
                 {% endif %}
             </div>
-
             <form method="POST">
-                <label>Your email address</label>
-                <input type="email" name="email"
-                    placeholder="you@example.com"
+                <label data-i18n="your_email">Your email address</label>
+                <input type="email" name="email" data-i18n-placeholder="email_ph"
                     value="{{ user['email'] if user and user['email'] else '' }}">
-                <button type="submit" class="save-btn">💾 Save</button>
+                <button type="submit" class="save-btn" data-i18n="save">💾 Save</button>
             </form>
-
-            <div class="info-box">
-                📬 Reminders are sent at 8:00 AM UTC every day for tasks due the following day.
-                To stop reminders, clear the email field and save.
+            <div class="info-box" data-i18n="email_info">
+                📬 Reminders are sent at 8:00 AM UTC every day for tasks due the following day. Clear the email field and save to stop reminders.
             </div>
         </div>
 
-        <!-- Account card -->
         <div class="card">
-            <div class="card-title">👤 Account</div>
-            <div class="card-desc">Logged in as <strong>{{ current_user.username }}</strong></div>
-            <a href="/logout" style="color: var(--red); font-size:14px; font-weight:600; text-decoration:none;">↩ Log out</a>
+            <div class="card-title" data-i18n="account">👤 Account</div>
+            <div class="card-desc"><span data-i18n="logged_in_as">Logged in as</span> <strong>{{ current_user.username }}</strong></div>
+            <a href="/logout" style="color: var(--red); font-size:14px; font-weight:600; text-decoration:none;" data-i18n="logout">↩ Log out</a>
         </div>
     </div>
 
     <script>
+        const LANG = {
+            en: {
+                settings: 'Settings', back: 'Back', email_reminders: '📧 Email Reminders',
+                email_desc: 'Get an email the day before any task is due. Leave blank to disable reminders.',
+                status: 'Status', active: 'Active', not_set: 'Not set up',
+                your_email: 'Your email address', email_ph: 'you@example.com',
+                save: '💾 Save',
+                email_info: '📬 Reminders are sent at 8:00 AM UTC every day for tasks due the following day. Clear the email field and save to stop reminders.',
+                account: '👤 Account', logged_in_as: 'Logged in as', logout: '↩ Log out'
+            },
+            zh: {
+                settings: '设置', back: '返回', email_reminders: '📧 邮件提醒',
+                email_desc: '在任务到期前一天收到邮件提醒。留空则关闭提醒。',
+                status: '状态', active: '已启用', not_set: '未设置',
+                your_email: '您的邮箱地址', email_ph: '您的邮箱',
+                save: '💾 保存',
+                email_info: '📬 提醒将在每天UTC早8点发送，提前一天通知到期任务。清空邮箱并保存可停止提醒。',
+                account: '👤 账户', logged_in_as: '当前登录：', logout: '↩ 退出登录'
+            }
+        };
+        let currentLang = localStorage.getItem('lang') || 'en';
+
+        function t(key) { return LANG[currentLang][key] || key; }
+
+        function applyLang() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (LANG[currentLang][key]) el.textContent = LANG[currentLang][key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.dataset.i18nPlaceholder;
+                if (LANG[currentLang][key]) el.placeholder = LANG[currentLang][key];
+            });
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            localStorage.setItem('lang', currentLang);
+            applyLang();
+            updateLangBtn();
+        }
+
+        function updateLangBtn() {
+            document.getElementById('lang-btn').textContent = currentLang === 'en' ? '中文' : 'EN';
+        }
+
         function toggleDark() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
-            updateBtn();
+            document.getElementById('dark-btn').textContent = next === 'dark' ? '☀️' : '🌙';
         }
-        function updateBtn() {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
-        }
-        updateBtn();
+
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+        applyLang();
+        updateLangBtn();
     </script>
 </body>
 </html>

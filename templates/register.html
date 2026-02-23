@@ -2,55 +2,113 @@
 <html>
 <head>
     <title>Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 400px;
-            margin: 80px auto;
-            background-color: #f4f4f4;
-        }
-        h1 { color: #333; }
-        input {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        a { color: #4CAF50; }
-        .error { color: red; }
-        .success { color: green; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --bg: #f0f2f5; --card: #ffffff; --border: #e4e7ec; --text: #1a1d23; --muted: #6b7280; --accent: #3b82f6; }
+        [data-theme="dark"] { --bg: #0f1117; --card: #1a1d23; --border: #2d3038; --text: #f1f5f9; --muted: #94a3b8; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; transition: background 0.3s, color 0.3s; }
+        .box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 36px 32px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        h1 { font-size: 22px; font-weight: 700; }
+        .icon-btn { padding: 6px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; display: flex; gap: 6px; }
+        .icon-btn:hover { color: var(--text); border-color: var(--text); }
+        label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); outline: none; margin-bottom: 16px; transition: border-color 0.2s; }
+        input:focus { border-color: var(--accent); }
+        .btn { width: 100%; padding: 11px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.2s; margin-top: 4px; }
+        .btn:hover { background: #2563eb; }
+        .footer { text-align: center; margin-top: 20px; font-size: 14px; color: var(--muted); }
+        .footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .flash-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-bottom: 16px; }
+        .flash-success { background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-bottom: 16px; }
     </style>
 </head>
 <body>
-    <h1>📝 Create Account</h1>
+    <div class="box">
+        <div class="top-row">
+            <h1>📅 <span data-i18n="register">Register</span></h1>
+            <div style="display:flex;gap:6px;">
+                <button class="icon-btn" id="lang-btn" onclick="toggleLang()">中文</button>
+                <button class="icon-btn" id="dark-btn" onclick="toggleDark()">🌙</button>
+            </div>
+        </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-            <p class="{{ category }}">{{ message }}</p>
-        {% endfor %}
-    {% endwith %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
 
-    <form action="/register" method="POST">
-        <input type="text" name="username" placeholder="Choose a username" required>
-        <input type="password" name="password" placeholder="Choose a password" required>
-        <button type="submit">Register</button>
-    </form>
+        <form method="POST">
+            <label data-i18n="username">Username</label>
+            <input type="text" name="username" required data-i18n-placeholder="username_ph">
+            <label data-i18n="password">Password</label>
+            <input type="password" name="password" required data-i18n-placeholder="password_ph">
+            <button type="submit" class="btn" data-i18n="create_account">Create Account</button>
+        </form>
+        <div class="footer">
+            <span data-i18n="have_account">Already have an account?</span>
+            <a href="/login" data-i18n="login">Login</a>
+        </div>
+    </div>
 
-    <br>
-    <p>Already have an account? <a href="/login">Log in here</a></p>
+    <script>
+        const LANG = {
+            en: {
+                register: 'Register', username: 'Username', password: 'Password',
+                username_ph: 'Choose a username', password_ph: 'Choose a password',
+                create_account: 'Create Account', have_account: 'Already have an account?', login: 'Login'
+            },
+            zh: {
+                register: '注册', username: '用户名', password: '密码',
+                username_ph: '选择用户名', password_ph: '选择密码',
+                create_account: '创建账户', have_account: '已有账户？', login: '登录'
+            }
+        };
+        let currentLang = localStorage.getItem('lang') || 'en';
+
+        function t(key) { return LANG[currentLang][key] || key; }
+
+        function applyLang() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (LANG[currentLang][key]) el.textContent = LANG[currentLang][key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.dataset.i18nPlaceholder;
+                if (LANG[currentLang][key]) el.placeholder = LANG[currentLang][key];
+            });
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            localStorage.setItem('lang', currentLang);
+            applyLang();
+            updateLangBtn();
+        }
+
+        function updateLangBtn() {
+            document.getElementById('lang-btn').textContent = currentLang === 'en' ? '中文' : 'EN';
+        }
+
+        function toggleDark() {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            document.getElementById('dark-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+        }
+
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+        applyLang();
+        updateLangBtn();
+    </script>
 </body>
 </html>

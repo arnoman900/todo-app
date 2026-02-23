@@ -11,93 +11,40 @@
     </script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bg: #f0f2f5; --card: #ffffff; --border: #e4e7ec;
-            --text: #1a1d23; --muted: #6b7280; --accent: #3b82f6;
-            --green: #22c55e; --yellow: #eab308; --red: #ef4444;
-            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
-        }
-        [data-theme="dark"] {
-            --bg: #0f1117; --card: #1a1d23; --border: #2d3038;
-            --text: #f1f5f9; --muted: #94a3b8;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            max-width: 1000px; margin: 0 auto;
-            background: var(--bg); color: var(--text);
-            padding: 30px 20px 60px;
-            transition: background 0.3s, color 0.3s;
-        }
-
+        :root { --bg: #f0f2f5; --card: #ffffff; --border: #e4e7ec; --text: #1a1d23; --muted: #6b7280; --accent: #3b82f6; --green: #22c55e; --yellow: #eab308; --red: #ef4444; --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06); }
+        [data-theme="dark"] { --bg: #0f1117; --card: #1a1d23; --border: #2d3038; --text: #f1f5f9; --muted: #94a3b8; }
+        body { font-family: 'DM Sans', sans-serif; max-width: 1000px; margin: 0 auto; background: var(--bg); color: var(--text); padding: 30px 20px 60px; transition: background 0.3s, color 0.3s; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .header-left { display: flex; align-items: center; gap: 12px; }
         h1 { font-size: 22px; font-weight: 700; }
         .header-right { display: flex; gap: 8px; }
-
-        .icon-btn {
-            display: flex; align-items: center; gap: 5px;
-            padding: 7px 13px; background: var(--card);
-            border: 1px solid var(--border); border-radius: 8px;
-            color: var(--muted); text-decoration: none;
-            font-size: 13px; font-weight: 500; cursor: pointer;
-            transition: all 0.2s; font-family: 'DM Sans', sans-serif;
-        }
+        .icon-btn { display: flex; align-items: center; gap: 5px; padding: 7px 13px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
         .icon-btn:hover { color: var(--text); border-color: var(--text); }
-
-        .view-switcher {
-            display: flex; gap: 4px; margin-bottom: 18px;
-            background: var(--card); padding: 5px;
-            border-radius: 10px; border: 1px solid var(--border); width: fit-content;
-        }
-        .view-btn {
-            padding: 6px 18px; border: none; border-radius: 7px;
-            cursor: pointer; font-size: 13px; font-weight: 600;
-            font-family: 'DM Sans', sans-serif;
-            background: transparent; color: var(--muted); transition: all 0.2s;
-        }
+        .view-switcher { display: flex; gap: 4px; margin-bottom: 18px; background: var(--card); padding: 5px; border-radius: 10px; border: 1px solid var(--border); width: fit-content; }
+        .view-btn { padding: 6px 18px; border: none; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; background: transparent; color: var(--muted); transition: all 0.2s; }
         .view-btn.active { background: var(--accent); color: white; }
         .view-btn:hover:not(.active) { background: var(--bg); color: var(--text); }
-
         .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .nav button {
-            padding: 7px 14px; border: 1px solid var(--border); border-radius: 8px;
-            background: var(--card); color: var(--text); cursor: pointer;
-            font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
-        }
+        .nav button { padding: 7px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
         .nav button:hover { background: var(--accent); color: white; border-color: var(--accent); }
         .nav-title { font-size: 17px; font-weight: 700; }
-
-        /* Week */
         .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .week-day {
-            background: var(--card); border-radius: 10px; padding: 10px;
-            min-height: 130px; cursor: pointer;
-            border: 1px solid var(--border); transition: box-shadow 0.2s, transform 0.2s;
-        }
+        .week-day { background: var(--card); border-radius: 10px; padding: 10px; min-height: 130px; cursor: pointer; border: 1px solid var(--border); transition: box-shadow 0.2s, transform 0.2s; }
         .week-day:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
         .week-day.today { border: 2px solid var(--accent); }
         .week-day.drag-over { background: #eff6ff !important; border: 2px dashed var(--accent) !important; }
         [data-theme="dark"] .week-day.drag-over { background: #1e3a5f !important; }
         .week-day-header { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
         .week-day-number { font-size: 19px; font-weight: 700; font-family: 'DM Mono', monospace; margin-bottom: 6px; }
-
-        /* Month */
         .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
         .month-day-name { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); padding: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .month-day {
-            background: var(--card); border-radius: 7px; padding: 6px;
-            min-height: 82px; cursor: pointer; border: 1px solid var(--border); transition: box-shadow 0.2s;
-        }
+        .month-day { background: var(--card); border-radius: 7px; padding: 6px; min-height: 82px; cursor: pointer; border: 1px solid var(--border); transition: box-shadow 0.2s; }
         .month-day:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .month-day.other-month { background: var(--bg); opacity: 0.5; pointer-events: none; }
         .month-day.today { border: 2px solid var(--accent); }
         .month-day.drag-over { background: #eff6ff !important; border: 2px dashed var(--accent) !important; }
         [data-theme="dark"] .month-day.drag-over { background: #1e3a5f !important; }
         .month-day-number { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
-
-        /* Year */
         .year-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         .year-month { background: var(--card); border-radius: 10px; padding: 11px; border: 1px solid var(--border); }
         .year-month-title { font-size: 12px; font-weight: 700; margin-bottom: 7px; text-align: center; }
@@ -107,78 +54,32 @@
         .year-day:hover { background: #eff6ff; }
         [data-theme="dark"] .year-day:hover { background: #1e3a5f; }
         .year-day.today { background: var(--accent); color: white; border-radius: 50%; }
-
-        /* Task pills */
-        .task-pill {
-            font-size: 11px; padding: 2px 7px; border-radius: 99px;
-            margin: 2px 0; white-space: nowrap; overflow: hidden;
-            text-overflow: ellipsis; color: white; display: block;
-            font-weight: 500; cursor: grab; user-select: none;
-            transition: opacity 0.2s;
-        }
+        .task-pill { font-size: 11px; padding: 2px 7px; border-radius: 99px; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; display: block; font-weight: 500; cursor: grab; user-select: none; transition: opacity 0.2s; }
         .task-pill:active { cursor: grabbing; opacity: 0.7; }
         .task-pill.overdue { background: var(--red); }
         .task-pill.warning { background: var(--yellow); color: #1a1d23; }
         .task-pill.ontrack { background: var(--green); }
         .task-pill.done { background: #9ca3af; text-decoration: line-through; }
         .task-pill.recurring::after { content: ' 🔁'; font-size: 9px; }
-
-        /* Dots for year */
         .dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; margin: 1px; }
         .dot.overdue { background: var(--red); }
         .dot.warning { background: var(--yellow); }
         .dot.ontrack { background: var(--green); }
         .dot.done { background: #9ca3af; }
         .dots-row { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 1px; }
-
-        /* Modal */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.45); z-index: 1000;
-            justify-content: center; align-items: center;
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.open { display: flex; }
-        .modal {
-            background: var(--card); border-radius: 14px; padding: 24px;
-            width: 460px; max-width: 95%; max-height: 88vh;
-            overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-            border: 1px solid var(--border);
-        }
+        .modal { background: var(--card); border-radius: 14px; padding: 24px; width: 460px; max-width: 95%; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); border: 1px solid var(--border); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .modal-title { font-size: 16px; font-weight: 700; }
-        .modal-close {
-            background: var(--bg); border: none; width: 28px; height: 28px;
-            border-radius: 50%; font-size: 13px; cursor: pointer; color: var(--muted);
-            display: flex; align-items: center; justify-content: center;
-        }
+        .modal-close { background: var(--bg); border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 13px; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; }
         .modal-close:hover { background: #fee2e2; color: var(--red); }
-
-        /* Add task form */
-        .add-task-form {
-            display: flex; flex-direction: column; gap: 8px;
-            margin-bottom: 16px; padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        .add-task-form input, .add-task-form select {
-            padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
-            font-size: 14px; font-family: 'DM Sans', sans-serif;
-            color: var(--text); background: var(--bg); outline: none;
-            transition: border-color 0.2s;
-        }
+        .add-task-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .add-task-form input, .add-task-form select { padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s; }
         .add-task-form input:focus, .add-task-form select:focus { border-color: var(--accent); }
-        .add-task-form button {
-            padding: 9px; background: var(--green); color: white; border: none;
-            border-radius: 8px; font-size: 14px; font-weight: 600;
-            font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.2s;
-        }
+        .add-task-form button { padding: 9px; background: var(--green); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.2s; }
         .add-task-form button:hover { background: #16a34a; }
-
-        /* Task items */
-        .modal-task {
-            padding: 11px 13px; border-radius: 9px; margin-bottom: 8px;
-            border-left: 4px solid var(--border);
-        }
+        .modal-task { padding: 11px 13px; border-radius: 9px; margin-bottom: 8px; border-left: 4px solid var(--border); }
         .modal-task.overdue { background: #fee2e2; border-left-color: var(--red); }
         .modal-task.warning { background: #fef9c3; border-left-color: var(--yellow); }
         .modal-task.ontrack { background: #dcfce7; border-left-color: var(--green); }
@@ -186,42 +87,25 @@
         [data-theme="dark"] .modal-task.overdue { background: #3b0f0f; }
         [data-theme="dark"] .modal-task.warning { background: #3b2f0f; }
         [data-theme="dark"] .modal-task.ontrack { background: #0f3b1f; }
-
         .modal-task-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .modal-task-info { display: flex; flex-direction: column; gap: 3px; flex: 1; }
         .modal-task-name { font-size: 14px; font-weight: 600; color: var(--text); }
         .modal-task-name.done-text { text-decoration: line-through; color: var(--muted); }
         .modal-task-recur { font-size: 11px; color: var(--muted); }
-
         .modal-task-actions { display: flex; gap: 5px; }
-        .btn-small {
-            padding: 4px 9px; border: none; border-radius: 6px; cursor: pointer;
-            font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-            color: white; transition: opacity 0.2s;
-        }
+        .btn-small { padding: 4px 9px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; color: white; transition: opacity 0.2s; }
         .btn-small:hover { opacity: 0.85; }
         .btn-toggle { background: var(--green); }
         .btn-toggle.undo { background: #9ca3af; }
         .btn-edit { background: var(--accent); }
         .btn-delete { background: var(--red); }
-
-        /* Inline edit form */
         .edit-form { display: none; flex-direction: column; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
         .edit-form.open { display: flex; }
-        .edit-form input, .edit-form select {
-            padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px;
-            font-size: 13px; font-family: 'DM Sans', sans-serif;
-            background: var(--bg); color: var(--text);
-        }
+        .edit-form input, .edit-form select { padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
         .edit-form-btns { display: flex; gap: 6px; }
         .btn-save { background: var(--accent); }
         .btn-cancel { background: #9ca3af; }
-
         .modal-empty { color: var(--muted); text-align: center; padding: 20px 0; font-size: 14px; }
-
-        /* ===================== */
-        /* PRINT STYLES          */
-        /* ===================== */
         @media print {
             @page { size: A4 landscape; margin: 15mm 12mm; }
             body { background: white !important; margin: 0; padding: 0; }
@@ -270,31 +154,31 @@
 
     <div class="header">
         <div class="header-left">
-            <a class="icon-btn" href="/">← Back</a>
+            <a class="icon-btn" href="/">← <span data-i18n="back">Back</span></a>
             <h1>📅 {{ calendar['name'] }}</h1>
         </div>
         <div class="header-right">
+            <button class="icon-btn" id="lang-btn" onclick="toggleLang()">中文</button>
             <button class="icon-btn" id="dark-btn" onclick="toggleDark()">🌙</button>
-            <button class="icon-btn print" onclick="triggerPrint()">🖨️ Print</button>
+            <button class="icon-btn" onclick="triggerPrint()">🖨️ <span data-i18n="print">Print</span></button>
         </div>
     </div>
 
     <div class="view-switcher">
-        <button class="view-btn active" id="btn-week" onclick="switchView('week')">Week</button>
-        <button class="view-btn" id="btn-month" onclick="switchView('month')">Month</button>
-        <button class="view-btn" id="btn-year" onclick="switchView('year')">Year</button>
+        <button class="view-btn active" id="btn-week" onclick="switchView('week')" data-i18n="week">Week</button>
+        <button class="view-btn" id="btn-month" onclick="switchView('month')" data-i18n="month">Month</button>
+        <button class="view-btn" id="btn-year" onclick="switchView('year')" data-i18n="year">Year</button>
     </div>
 
     <div class="nav">
-        <button onclick="navigate(-1)">← Prev</button>
+        <button onclick="navigate(-1)" id="btn-prev">← <span data-i18n="prev">Prev</span></button>
         <span class="nav-title" id="nav-title"></span>
-        <button onclick="navigate(1)">Next →</button>
+        <button onclick="navigate(1)" id="btn-next"><span data-i18n="next">Next</span> →</button>
     </div>
 
     <div id="calendar-container"></div>
     <div class="print-view" id="print-view"></div>
 
-    <!-- Modal -->
     <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
         <div class="modal">
             <div class="modal-header">
@@ -302,21 +186,100 @@
                 <button class="modal-close" onclick="closeModal()">✕</button>
             </div>
             <div class="add-task-form">
-                <input type="text" id="new-task-name" placeholder="Add a new task...">
-                <input type="date" id="new-task-date">
-                <select id="new-task-recurrence">
-                    <option value="none">🔁 No repeat</option>
-                    <option value="daily">🔁 Repeat daily</option>
-                    <option value="weekly">🔁 Repeat weekly</option>
-                    <option value="monthly">🔁 Repeat monthly</option>
-                </select>
-                <button onclick="addTask()">+ Add Task</button>
+                <input type="text" id="new-task-name" data-i18n-placeholder="add_task_ph">
+                <input type="date" id="new-task-date" onchange="updateRecurrenceOptions(this.value, 'new-task-recurrence')">
+                <select id="new-task-recurrence"><option value="none" data-i18n="no_repeat">No repeat</option></select>
+                <button onclick="addTask()" id="add-task-btn" data-i18n="add_task">+ Add Task</button>
             </div>
             <div id="modal-body"></div>
         </div>
     </div>
 
     <script>
+        const LANG = {
+            en: {
+                back: 'Back', print: 'Print', week: 'Week', month: 'Month', year: 'Year',
+                prev: 'Prev', next: 'Next',
+                add_task_ph: 'Add a new task...', no_repeat: 'No repeat',
+                daily: '🔁 Daily', weekly_on: '🔁 Weekly on', monthly_on: '🔁 Monthly on the',
+                monthly_nth: '🔁 Monthly on the', monthly_last: '🔁 Monthly on the last',
+                of_month: 'of month',
+                add_task: '+ Add Task', save: '💾 Save', cancel: 'Cancel',
+                no_tasks: 'No tasks on this day. Add one above!',
+                delete_task: 'Delete this task?',
+                repeats_daily: '🔁 Repeats daily', every: '🔁 Every', repeats_monthly: '🔁 Repeats monthly',
+                last: 'Last',
+                overdue_label: '⚠️ Overdue', due_soon_label: '⚡ Due Soon',
+                on_track_label: '✅ On Track', done_label: '✔️ Done',
+                printed: 'Printed', recurring_legend: '🔁 Recurring',
+                overdue: 'Overdue', due_soon: 'Due Soon', on_track: 'On Track', done: 'Done',
+                DAY_NAMES: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+                DAY_FULL: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+                MONTH_NAMES: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+                ORD: ['','1st','2nd','3rd','4th','5th']
+            },
+            zh: {
+                back: '返回', print: '打印', week: '周', month: '月', year: '年',
+                prev: '上一', next: '下一',
+                add_task_ph: '添加新任务...', no_repeat: '不重复',
+                daily: '🔁 每天', weekly_on: '🔁 每周', monthly_on: '🔁 每月',
+                monthly_nth: '🔁 每月第', monthly_last: '🔁 每月最后一个',
+                of_month: '每月',
+                add_task: '+ 添加任务', save: '💾 保存', cancel: '取消',
+                no_tasks: '今天没有任务，请在上方添加！',
+                delete_task: '确认删除此任务？',
+                repeats_daily: '🔁 每天重复', every: '🔁 每', repeats_monthly: '🔁 每月重复',
+                last: '最后一个',
+                overdue_label: '⚠️ 已逾期', due_soon_label: '⚡ 即将到期',
+                on_track_label: '✅ 进行中', done_label: '✔️ 已完成',
+                printed: '打印于', recurring_legend: '🔁 重复任务',
+                overdue: '已逾期', due_soon: '即将到期', on_track: '进行中', done: '已完成',
+                DAY_NAMES: ['日','一','二','三','四','五','六'],
+                DAY_FULL: ['周日','周一','周二','周三','周四','周五','周六'],
+                MONTH_NAMES: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+                ORD: ['','第一','第二','第三','第四','第五']
+            }
+        };
+        let currentLang = localStorage.getItem('lang') || 'en';
+
+        function t(key) { return LANG[currentLang][key] || key; }
+
+        function applyLang() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (LANG[currentLang][key]) el.textContent = LANG[currentLang][key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.dataset.i18nPlaceholder;
+                if (LANG[currentLang][key]) el.placeholder = LANG[currentLang][key];
+            });
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            localStorage.setItem('lang', currentLang);
+            applyLang();
+            updateLangBtn();
+            render();
+        }
+
+        function updateLangBtn() {
+            document.getElementById('lang-btn').textContent = currentLang === 'en' ? '中文' : 'EN';
+        }
+
+        function toggleDark() {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            document.getElementById('dark-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+        }
+
+        function updateDarkBtn() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+        }
+
+        // ---- Data ----
         const calendarId = {{ calendar['id'] }};
         const calendarName = {{ calendar['name'] | tojson }};
         const today = "{{ today }}";
@@ -329,7 +292,8 @@
                 task: {{ task['task'] | tojson }},
                 due_date: "{{ task['due_date'] if task['due_date'] else '' }}",
                 done: {{ 'true' if task['done'] else 'false' }},
-                recurrence: "{{ task['recurrence'] if task['recurrence'] else 'none' }}"
+                recurrence: "{{ task['recurrence'] if task['recurrence'] else 'none' }}",
+                completed_dates: {{ completions.get(task['id'], []) | tojson }}
             },
             {% endfor %}
         ];
@@ -339,20 +303,114 @@
         let selectedDate = '';
         let dragTaskId = null;
 
-        const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-        const MONTH_NAMES = ['January','February','March','April','May','June',
-                              'July','August','September','October','November','December'];
+        const ORD_EN = ['','1st','2nd','3rd','4th','5th'];
 
-        function getTaskClass(task) {
-            if (task.done) return 'done';
-            if (!task.due_date) return 'ontrack';
-            if (task.due_date < today) return 'overdue';
-            if (task.due_date <= tomorrow) return 'warning';
+        function ordSuffix(n) {
+            if (currentLang === 'zh') return t('ORD')[n] || n + '';
+            if (n >= 11 && n <= 13) return n + 'th';
+            switch (n % 10) { case 1: return n+'st'; case 2: return n+'nd'; case 3: return n+'rd'; default: return n+'th'; }
+        }
+
+        function updateRecurrenceOptions(dateStr, selectId) {
+            const sel = document.getElementById(selectId);
+            if (!sel || !dateStr) return;
+            const saved = sel.value;
+            const d = new Date(dateStr + 'T00:00:00');
+            const dow = d.getDay();
+            const dayName = t('DAY_FULL')[dow];
+            const dom = d.getDate();
+            const occ = Math.ceil(dom / 7);
+            const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+            const isLast = (dom + 7) > daysInMonth;
+
+            if (currentLang === 'en') {
+                sel.innerHTML = `
+                    <option value="none">${t('no_repeat')}</option>
+                    <option value="daily">${t('daily')}</option>
+                    <option value="weekly">${t('weekly_on')} ${dayName}</option>
+                    <option value="monthly">${t('monthly_on')} ${ordSuffix(dom)}</option>
+                    <option value="monthly_weekday_${occ}_${dow}">${t('monthly_nth')} ${ordSuffix(occ)} ${dayName}</option>
+                    ${isLast ? `<option value="monthly_weekday_last_${dow}">${t('monthly_last')} ${dayName}</option>` : ''}
+                `;
+            } else {
+                sel.innerHTML = `
+                    <option value="none">${t('no_repeat')}</option>
+                    <option value="daily">${t('daily')}</option>
+                    <option value="weekly">${t('weekly_on')}${dayName}</option>
+                    <option value="monthly">${t('monthly_on')}${dom}日</option>
+                    <option value="monthly_weekday_${occ}_${dow}">🔁 每月${t('ORD')[occ]}个${dayName}</option>
+                    ${isLast ? `<option value="monthly_weekday_last_${dow}">🔁 每月最后一个${dayName}</option>` : ''}
+                `;
+            }
+            if ([...sel.options].some(o => o.value === saved)) sel.value = saved;
+        }
+
+        function isCompletedOnDate(task, dateStr) {
+            if (!task.recurrence || task.recurrence === 'none') return task.done;
+            return task.completed_dates && task.completed_dates.includes(dateStr);
+        }
+
+        function getTaskClass(task, dateStr) {
+            const checkDate = dateStr || task.due_date;
+            const done = isCompletedOnDate(task, checkDate);
+            if (done) return 'done';
+            if (!checkDate) return 'ontrack';
+            if (checkDate < today) return 'overdue';
+            if (checkDate <= tomorrow) return 'warning';
             return 'ontrack';
         }
 
+        function isRecurrenceOf(task, dateStr) {
+            if (!task.due_date || !task.recurrence || task.recurrence === 'none') return false;
+            if (dateStr <= task.due_date) return false;
+            const start = new Date(task.due_date + 'T00:00:00');
+            const target = new Date(dateStr + 'T00:00:00');
+            if (task.recurrence === 'daily') return true;
+            if (task.recurrence === 'weekly') {
+                const diffDays = Math.round((target - start) / (1000 * 60 * 60 * 24));
+                return diffDays % 7 === 0;
+            }
+            if (task.recurrence === 'monthly') return target.getDate() === start.getDate();
+            if (task.recurrence.startsWith('monthly_weekday_')) {
+                const parts = task.recurrence.split('_');
+                const occ = parts[2]; const dow = parseInt(parts[3]);
+                if (target.getDay() !== dow) return false;
+                const targetDay = target.getDate();
+                const daysInMonth = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+                if (occ === 'last') return (targetDay + 7) > daysInMonth;
+                return Math.ceil(targetDay / 7) === parseInt(occ);
+            }
+            return false;
+        }
+
         function getTasksForDate(dateStr) {
-            return allTasks.filter(t => t.due_date === dateStr);
+            return allTasks.filter(t => t.due_date === dateStr || isRecurrenceOf(t, dateStr));
+        }
+
+        function recurLabel(r, due_date) {
+            if (!r || r === 'none') return '';
+            if (r === 'daily') return t('repeats_daily');
+            if (r === 'weekly') {
+                if (due_date) {
+                    const d = new Date(due_date + 'T00:00:00');
+                    return `${t('every')} ${t('DAY_FULL')[d.getDay()]}`;
+                }
+                return t('repeats_daily');
+            }
+            if (r === 'monthly') return t('repeats_monthly');
+            if (r.startsWith('monthly_weekday_')) {
+                const parts = r.split('_');
+                const occ = parts[2]; const dow = parseInt(parts[3]);
+                const dayName = t('DAY_FULL')[dow];
+                if (currentLang === 'en') {
+                    if (occ === 'last') return `🔁 Last ${dayName} of month`;
+                    return `🔁 ${ORD_EN[parseInt(occ)]} ${dayName} of month`;
+                } else {
+                    if (occ === 'last') return `🔁 每月最后一个${dayName}`;
+                    return `🔁 每月第${parseInt(occ)}个${dayName}`;
+                }
+            }
+            return '';
         }
 
         function formatDate(d) {
@@ -361,24 +419,12 @@
 
         function friendlyDate(dateStr) {
             const [y, m, d] = dateStr.split('-');
+            if (currentLang === 'zh') {
+                return `${y}年${parseInt(m)}月${parseInt(d)}日`;
+            }
             return new Date(y, m-1, d).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
         }
 
-        // ---- Dark mode ----
-        function toggleDark() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            updateDarkBtn();
-        }
-        function updateDarkBtn() {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
-        }
-        updateDarkBtn();
-
-        // ---- View / Navigation ----
         function switchView(view) {
             currentView = view;
             document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
@@ -399,7 +445,6 @@
             else renderYear();
         }
 
-        // ---- Drag and Drop ----
         function onDragStart(e, taskId) {
             dragTaskId = taskId;
             e.dataTransfer.effectAllowed = 'move';
@@ -413,84 +458,70 @@
             el.classList.add('drag-over');
         }
 
-        function onDragLeave(el) {
-            el.classList.remove('drag-over');
-        }
+        function onDragLeave(el) { el.classList.remove('drag-over'); }
 
         async function onDrop(e, dateStr, el) {
-            e.preventDefault();
-            el.classList.remove('drag-over');
+            e.preventDefault(); el.classList.remove('drag-over');
             if (!dragTaskId) return;
-            const taskId = dragTaskId;
-            dragTaskId = null;
+            const taskId = dragTaskId; dragTaskId = null;
             const task = allTasks.find(t => t.id === taskId);
             if (!task || task.due_date === dateStr) return;
-
             await fetch(`/api/task/edit/${taskId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ task: task.task, due_date: dateStr, recurrence: task.recurrence })
             });
-            task.due_date = dateStr;
-            render();
+            task.due_date = dateStr; render();
         }
 
-        function pillHtml(task) {
-            const cls = getTaskClass(task);
+        function pillHtml(task, dateStr) {
+            const cls = getTaskClass(task, dateStr);
             const recurClass = task.recurrence && task.recurrence !== 'none' ? ' recurring' : '';
             return `<span class="task-pill ${cls}${recurClass}"
                 draggable="true"
                 ondragstart="onDragStart(event, ${task.id})"
-                title="${task.task}${task.recurrence !== 'none' ? ' 🔁 ' + task.recurrence : ''}"
+                title="${task.task}"
                 onclick="event.stopPropagation()">
                 ${task.task}
             </span>`;
         }
 
         function dayDropHandlers(dateStr) {
-            return `ondragover="onDragOver(event, this)"
-                    ondragleave="onDragLeave(this)"
-                    ondrop="onDrop(event, '${dateStr}', this)"`;
+            return `ondragover="onDragOver(event, this)" ondragleave="onDragLeave(this)" ondrop="onDrop(event, '${dateStr}', this)"`;
         }
 
-        // ---- WEEK ----
         function renderWeek() {
             const start = new Date(currentDate);
             start.setDate(start.getDate() - start.getDay());
             const end = new Date(start); end.setDate(end.getDate() + 6);
+            const DN = t('DAY_NAMES'); const MN = t('MONTH_NAMES');
             document.getElementById('nav-title').textContent =
-                `${MONTH_NAMES[start.getMonth()]} ${start.getDate()} – ${MONTH_NAMES[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
-
+                `${MN[start.getMonth()]} ${start.getDate()} – ${MN[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
             let html = '<div class="week-grid">';
             for (let i = 0; i < 7; i++) {
                 const d = new Date(start); d.setDate(d.getDate() + i);
                 const dateStr = formatDate(d);
                 const dayTasks = getTasksForDate(dateStr);
                 html += `<div class="week-day ${dateStr === today ? 'today' : ''}"
-                    onclick="openModal('${dateStr}')"
-                    ${dayDropHandlers(dateStr)}>
-                    <div class="week-day-header">${DAY_NAMES[d.getDay()]}</div>
+                    onclick="openModal('${dateStr}')" ${dayDropHandlers(dateStr)}>
+                    <div class="week-day-header">${DN[d.getDay()]}</div>
                     <div class="week-day-number">${d.getDate()}</div>
-                    ${dayTasks.map(t => pillHtml(t)).join('')}
+                    ${dayTasks.map(t => pillHtml(t, dateStr)).join('')}
                 </div>`;
             }
             html += '</div>';
             document.getElementById('calendar-container').innerHTML = html;
         }
 
-        // ---- MONTH ----
         function renderMonth() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            document.getElementById('nav-title').textContent = `${MONTH_NAMES[month]} ${year}`;
-
+            const DN = t('DAY_NAMES'); const MN = t('MONTH_NAMES');
+            document.getElementById('nav-title').textContent = `${MN[month]} ${year}`;
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const daysInPrev = new Date(year, month, 0).getDate();
-
             let html = '<div class="month-grid">';
-            DAY_NAMES.forEach(d => { html += `<div class="month-day-name">${d}</div>`; });
-
+            DN.forEach(d => { html += `<div class="month-day-name">${d}</div>`; });
             for (let i = firstDay - 1; i >= 0; i--) {
                 html += `<div class="month-day other-month"><div class="month-day-number">${daysInPrev - i}</div></div>`;
             }
@@ -498,10 +529,9 @@
                 const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                 const dayTasks = getTasksForDate(dateStr);
                 html += `<div class="month-day ${dateStr === today ? 'today' : ''}"
-                    onclick="openModal('${dateStr}')"
-                    ${dayDropHandlers(dateStr)}>
+                    onclick="openModal('${dateStr}')" ${dayDropHandlers(dateStr)}>
                     <div class="month-day-number">${d}</div>
-                    ${dayTasks.map(t => pillHtml(t)).join('')}
+                    ${dayTasks.map(t => pillHtml(t, dateStr)).join('')}
                 </div>`;
             }
             const total = Math.ceil((firstDay + daysInMonth) / 7) * 7;
@@ -512,26 +542,23 @@
             document.getElementById('calendar-container').innerHTML = html;
         }
 
-        // ---- YEAR ----
         function renderYear() {
             const year = currentDate.getFullYear();
+            const DN = t('DAY_NAMES'); const MN = t('MONTH_NAMES');
             document.getElementById('nav-title').textContent = `${year}`;
             let html = '<div class="year-grid">';
             for (let m = 0; m < 12; m++) {
                 const firstDay = new Date(year, m, 1).getDay();
                 const daysInMonth = new Date(year, m + 1, 0).getDate();
-                html += `<div class="year-month">
-                    <div class="year-month-title">${MONTH_NAMES[m]}</div>
-                    <div class="year-month-grid">`;
-                DAY_NAMES.forEach(d => { html += `<div class="year-day-name">${d[0]}</div>`; });
+                html += `<div class="year-month"><div class="year-month-title">${MN[m]}</div><div class="year-month-grid">`;
+                DN.forEach(d => { html += `<div class="year-day-name">${d[0]}</div>`; });
                 for (let i = 0; i < firstDay; i++) html += `<div class="year-day"></div>`;
                 for (let d = 1; d <= daysInMonth; d++) {
                     const dateStr = `${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                     const dayTasks = getTasksForDate(dateStr);
                     let dots = dayTasks.length > 0 ?
-                        '<div class="dots-row">' + dayTasks.map(t => `<span class="dot ${getTaskClass(t)}"></span>`).join('') + '</div>' : '';
-                    html += `<div class="year-day ${dateStr === today ? 'today' : ''}"
-                        onclick="openModal('${dateStr}')">${d}${dots}</div>`;
+                        '<div class="dots-row">' + dayTasks.map(t => `<span class="dot ${getTaskClass(t, dateStr)}"></span>`).join('') + '</div>' : '';
+                    html += `<div class="year-day ${dateStr === today ? 'today' : ''}" onclick="openModal('${dateStr}')">${d}${dots}</div>`;
                 }
                 html += '</div></div>';
             }
@@ -539,7 +566,6 @@
             document.getElementById('calendar-container').innerHTML = html;
         }
 
-        // ---- PRINT ----
         function triggerPrint() {
             if (currentView === 'year') buildPrintYear(currentDate.getFullYear());
             else buildPrintMonth(currentDate.getFullYear(), currentDate.getMonth());
@@ -547,18 +573,16 @@
         }
 
         function buildPrintMonth(year, month) {
+            const MN = t('MONTH_NAMES'); const DN = t('DAY_NAMES');
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const daysInPrev = new Date(year, month, 0).getDate();
-            const printDate = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
-
+            const printDate = new Date().toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', { month:'long', day:'numeric', year:'numeric' });
             let html = `<div class="print-header">
-                <div><div class="print-title">📅 ${calendarName}</div>
-                <div class="print-subtitle">${MONTH_NAMES[month]} ${year}</div></div>
-                <div class="print-subtitle">Printed ${printDate}</div>
+                <div><div class="print-title">📅 ${calendarName}</div><div class="print-subtitle">${MN[month]} ${year}</div></div>
+                <div class="print-subtitle">${t('printed')} ${printDate}</div>
             </div><div class="print-month-grid">`;
-
-            DAY_NAMES.forEach(d => { html += `<div class="print-day-name">${d}</div>`; });
+            DN.forEach(d => { html += `<div class="print-day-name">${d}</div>`; });
             for (let i = firstDay - 1; i >= 0; i--) {
                 html += `<div class="print-day other-month"><div class="print-day-number">${daysInPrev - i}</div></div>`;
             }
@@ -567,7 +591,7 @@
                 const dayTasks = getTasksForDate(dateStr);
                 html += `<div class="print-day ${dateStr === today ? 'today-print' : ''}">
                     <div class="print-day-number">${d}</div>
-                    ${dayTasks.map(t => `<span class="print-task ${getTaskClass(t)}">${t.task}${t.recurrence !== 'none' ? ' 🔁' : ''}</span>`).join('')}
+                    ${dayTasks.map(t => `<span class="print-task ${getTaskClass(t, dateStr)}">${t.task}${t.recurrence !== 'none' ? ' 🔁' : ''}</span>`).join('')}
                 </div>`;
             }
             const total = Math.ceil((firstDay + daysInMonth) / 7) * 7;
@@ -575,110 +599,95 @@
                 html += `<div class="print-day other-month"><div class="print-day-number">${d}</div></div>`;
             }
             html += `</div><div class="print-legend">
-                <div class="legend-item"><div class="legend-dot overdue"></div> Overdue</div>
-                <div class="legend-item"><div class="legend-dot warning"></div> Due Soon</div>
-                <div class="legend-item"><div class="legend-dot ontrack"></div> On Track</div>
-                <div class="legend-item"><div class="legend-dot done"></div> Done</div>
-                <div class="legend-item">🔁 Recurring</div>
+                <div class="legend-item"><div class="legend-dot overdue"></div> ${t('overdue')}</div>
+                <div class="legend-item"><div class="legend-dot warning"></div> ${t('due_soon')}</div>
+                <div class="legend-item"><div class="legend-dot ontrack"></div> ${t('on_track')}</div>
+                <div class="legend-item"><div class="legend-dot done"></div> ${t('done')}</div>
+                <div class="legend-item">${t('recurring_legend')}</div>
             </div>`;
             document.getElementById('print-view').innerHTML = html;
         }
 
         function buildPrintYear(year) {
-            const printDate = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+            const MN = t('MONTH_NAMES'); const DN = t('DAY_NAMES');
+            const printDate = new Date().toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', { month:'long', day:'numeric', year:'numeric' });
             let html = `<div class="print-header">
-                <div><div class="print-title">📅 ${calendarName}</div>
-                <div class="print-subtitle">Year ${year}</div></div>
-                <div class="print-subtitle">Printed ${printDate}</div>
+                <div><div class="print-title">📅 ${calendarName}</div><div class="print-subtitle">${year}</div></div>
+                <div class="print-subtitle">${t('printed')} ${printDate}</div>
             </div><div class="print-year-grid">`;
-
             for (let m = 0; m < 12; m++) {
                 const firstDay = new Date(year, m, 1).getDay();
                 const daysInMonth = new Date(year, m + 1, 0).getDate();
-                html += `<div class="print-year-month">
-                    <div class="print-year-month-title">${MONTH_NAMES[m]}</div>
-                    <div class="print-year-mini-grid">`;
-                DAY_NAMES.forEach(d => { html += `<div class="print-year-day-name">${d[0]}</div>`; });
+                html += `<div class="print-year-month"><div class="print-year-month-title">${MN[m]}</div><div class="print-year-mini-grid">`;
+                DN.forEach(d => { html += `<div class="print-year-day-name">${d[0]}</div>`; });
                 for (let i = 0; i < firstDay; i++) html += `<div class="print-year-day"></div>`;
                 for (let d = 1; d <= daysInMonth; d++) {
                     const dateStr = `${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                     const dayTasks = getTasksForDate(dateStr);
                     let dots = dayTasks.length > 0 ?
-                        '<div class="print-year-dots">' +
-                        dayTasks.map(t => `<span class="print-year-dot ${getTaskClass(t)}"></span>`).join('') +
-                        '</div>' : '';
+                        '<div class="print-year-dots">' + dayTasks.map(t => `<span class="print-year-dot ${getTaskClass(t, dateStr)}"></span>`).join('') + '</div>' : '';
                     html += `<div class="print-year-day ${dateStr === today ? 'today-print' : ''} ${dayTasks.length > 0 ? 'has-tasks' : ''}">${d}${dots}</div>`;
                 }
                 html += '</div></div>';
             }
             html += `</div><div class="print-legend">
-                <div class="legend-item"><div class="legend-dot overdue"></div> Overdue</div>
-                <div class="legend-item"><div class="legend-dot warning"></div> Due Soon</div>
-                <div class="legend-item"><div class="legend-dot ontrack"></div> On Track</div>
-                <div class="legend-item"><div class="legend-dot done"></div> Done</div>
+                <div class="legend-item"><div class="legend-dot overdue"></div> ${t('overdue')}</div>
+                <div class="legend-item"><div class="legend-dot warning"></div> ${t('due_soon')}</div>
+                <div class="legend-item"><div class="legend-dot ontrack"></div> ${t('on_track')}</div>
+                <div class="legend-item"><div class="legend-dot done"></div> ${t('done')}</div>
             </div>`;
             document.getElementById('print-view').innerHTML = html;
         }
 
-        // ---- Modal ----
         function openModal(dateStr) {
             selectedDate = dateStr;
             document.getElementById('modal-title').textContent = '📅 ' + friendlyDate(dateStr);
             document.getElementById('new-task-name').value = '';
             document.getElementById('new-task-date').value = dateStr;
-            document.getElementById('new-task-recurrence').value = 'none';
+            updateRecurrenceOptions(dateStr, 'new-task-recurrence');
             document.getElementById('modal-overlay').classList.add('open');
             renderModalTasks();
         }
 
-        function closeModal() {
-            document.getElementById('modal-overlay').classList.remove('open');
-        }
+        function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
 
         function handleOverlayClick(e) {
             if (e.target === document.getElementById('modal-overlay')) closeModal();
-        }
-
-        function recurLabel(r) {
-            const map = { daily: '🔁 Repeats daily', weekly: '🔁 Repeats weekly', monthly: '🔁 Repeats monthly' };
-            return map[r] || '';
         }
 
         function renderModalTasks() {
             const dayTasks = getTasksForDate(selectedDate);
             const body = document.getElementById('modal-body');
             if (dayTasks.length === 0) {
-                body.innerHTML = '<div class="modal-empty">No tasks on this day. Add one above!</div>';
+                body.innerHTML = `<div class="modal-empty">${t('no_tasks')}</div>`;
                 return;
             }
             body.innerHTML = dayTasks.map(task => {
-                const cls = getTaskClass(task);
+                const cls = getTaskClass(task, selectedDate);
+                const isDone = isCompletedOnDate(task, selectedDate);
+                const isRecurring = task.recurrence && task.recurrence !== 'none';
                 return `
                 <div class="modal-task ${cls}" id="modal-task-${task.id}">
                     <div class="modal-task-row">
                         <div class="modal-task-info">
-                            <span class="modal-task-name ${task.done ? 'done-text' : ''}">${task.task}</span>
-                            ${task.recurrence && task.recurrence !== 'none' ? `<span class="modal-task-recur">${recurLabel(task.recurrence)}</span>` : ''}
+                            <span class="modal-task-name ${isDone ? 'done-text' : ''}">${task.task}</span>
+                            ${isRecurring ? `<span class="modal-task-recur">${recurLabel(task.recurrence, task.due_date)}</span>` : ''}
                         </div>
                         <div class="modal-task-actions">
-                            <button class="btn-small btn-toggle ${task.done ? 'undo' : ''}"
-                                onclick="toggleTask(${task.id})">${task.done ? 'Undo' : '✔'}</button>
+                            <button class="btn-small btn-toggle ${isDone ? 'undo' : ''}"
+                                onclick="toggleTask(${task.id}, '${selectedDate}')">${isDone ? t('done') : '✔'}</button>
                             <button class="btn-small btn-edit" onclick="toggleEditForm(${task.id})">✏️</button>
                             <button class="btn-small btn-delete" onclick="deleteTask(${task.id})">🗑️</button>
                         </div>
                     </div>
                     <div class="edit-form" id="edit-form-${task.id}">
                         <input type="text" id="edit-name-${task.id}" value="${task.task}">
-                        <input type="date" id="edit-date-${task.id}" value="${task.due_date}">
-                        <select id="edit-recur-${task.id}">
-                            <option value="none" ${task.recurrence === 'none' ? 'selected' : ''}>🔁 No repeat</option>
-                            <option value="daily" ${task.recurrence === 'daily' ? 'selected' : ''}>🔁 Repeat daily</option>
-                            <option value="weekly" ${task.recurrence === 'weekly' ? 'selected' : ''}>🔁 Repeat weekly</option>
-                            <option value="monthly" ${task.recurrence === 'monthly' ? 'selected' : ''}>🔁 Repeat monthly</option>
-                        </select>
+                        <input type="date" id="edit-date-${task.id}" value="${task.due_date}"
+                            onchange="updateRecurrenceOptions(this.value, 'edit-recur-${task.id}')">
+                        <select id="edit-recur-${task.id}"><option value="none">${t('no_repeat')}</option></select>
                         <div class="edit-form-btns">
-                            <button class="btn-small btn-save" onclick="saveEdit(${task.id})">💾 Save</button>
-                            <button class="btn-small btn-cancel" onclick="toggleEditForm(${task.id})">Cancel</button>
+                            <button class="btn-small btn-save" onclick="saveEdit(${task.id})">${t('save')}</button>
+                            <button class="btn-small btn-cancel" onclick="toggleEditForm(${task.id})">${t('cancel')}</button>
                         </div>
                     </div>
                 </div>`;
@@ -686,44 +695,52 @@
         }
 
         function toggleEditForm(taskId) {
-            document.getElementById(`edit-form-${taskId}`).classList.toggle('open');
+            const form = document.getElementById(`edit-form-${taskId}`);
+            form.classList.toggle('open');
+            if (form.classList.contains('open')) {
+                const dateVal = document.getElementById(`edit-date-${taskId}`).value;
+                const task = allTasks.find(t => t.id === taskId);
+                updateRecurrenceOptions(dateVal, `edit-recur-${taskId}`);
+                const sel = document.getElementById(`edit-recur-${taskId}`);
+                if (task && [...sel.options].some(o => o.value === task.recurrence)) sel.value = task.recurrence;
+            }
         }
 
-        // ---- Task CRUD ----
         async function addTask() {
             const name = document.getElementById('new-task-name').value.trim();
             const due_date = document.getElementById('new-task-date').value;
             const recurrence = document.getElementById('new-task-recurrence').value;
             if (!name) return;
             const res = await fetch('/api/task/add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ task: name, due_date, calendar_id: calendarId, recurrence })
             });
             const newTask = await res.json();
-            allTasks.push({ id: newTask.id, task: newTask.task, due_date: newTask.due_date, done: false, recurrence: newTask.recurrence || 'none' });
+            allTasks.push({ id: newTask.id, task: newTask.task, due_date: newTask.due_date, done: false, recurrence: newTask.recurrence || 'none', completed_dates: [] });
             document.getElementById('new-task-name').value = '';
-            renderModalTasks();
-            render();
+            renderModalTasks(); render();
         }
 
-        async function toggleTask(taskId) {
-            const res = await fetch(`/api/task/toggle/${taskId}`, { method: 'POST' });
+        async function toggleTask(taskId, dateStr) {
+            const res = await fetch(`/api/task/toggle/${taskId}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date: dateStr })
+            });
             const data = await res.json();
             const task = allTasks.find(t => t.id === taskId);
-            if (task) task.done = data.done === 1;
-            // If a new recurring task was spawned, add it to allTasks
-            if (data.new_task) {
-                allTasks.push({
-                    id: data.new_task.id,
-                    task: data.new_task.task,
-                    due_date: data.new_task.due_date,
-                    done: false,
-                    recurrence: data.new_task.recurrence || 'none'
-                });
+            if (task) {
+                const isRecurring = task.recurrence && task.recurrence !== 'none';
+                if (isRecurring) {
+                    if (data.done === 1) { if (!task.completed_dates.includes(dateStr)) task.completed_dates.push(dateStr); }
+                    else { task.completed_dates = task.completed_dates.filter(d => d !== dateStr); }
+                } else {
+                    task.done = data.done === 1;
+                }
             }
-            renderModalTasks();
-            render();
+            if (data.new_task) {
+                allTasks.push({ id: data.new_task.id, task: data.new_task.task, due_date: data.new_task.due_date, done: false, recurrence: data.new_task.recurrence || 'none', completed_dates: [] });
+            }
+            renderModalTasks(); render();
         }
 
         async function saveEdit(taskId) {
@@ -732,25 +749,25 @@
             const recurrence = document.getElementById(`edit-recur-${taskId}`).value;
             if (!name) return;
             await fetch(`/api/task/edit/${taskId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ task: name, due_date, recurrence })
             });
             const task = allTasks.find(t => t.id === taskId);
             if (task) { task.task = name; task.due_date = due_date; task.recurrence = recurrence; }
             if (due_date !== selectedDate) selectedDate = due_date;
-            renderModalTasks();
-            render();
+            renderModalTasks(); render();
         }
 
         async function deleteTask(taskId) {
-            if (!confirm('Delete this task?')) return;
+            if (!confirm(t('delete_task'))) return;
             await fetch(`/api/task/delete/${taskId}`, { method: 'POST' });
             allTasks = allTasks.filter(t => t.id !== taskId);
-            renderModalTasks();
-            render();
+            renderModalTasks(); render();
         }
 
+        updateDarkBtn();
+        applyLang();
+        updateLangBtn();
         render();
     </script>
 </body>
