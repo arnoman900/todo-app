@@ -1,96 +1,419 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Folders</title>
+    <title>My Calendars</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --border: #e4e7ec;
+            --text: #1a1d23;
+            --muted: #6b7280;
+            --accent: #3b82f6;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-hover: 0 4px 12px rgba(0,0,0,0.10), 0 8px 28px rgba(0,0,0,0.08);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 50px auto;
-            background-color: #f4f4f4;
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            min-height: 100vh;
+            padding: 40px 20px 60px;
         }
-        h1 { color: #333; }
-        input[type="text"] {
-            padding: 10px;
-            width: 70%;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+
+        /* ---- Top bar ---- */
+        .topbar {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
+        .topbar-left h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+        .topbar-left p {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover { background: #f9fafb; color: var(--red); border-color: var(--red); }
+
+        /* ---- Create form ---- */
+        .create-section {
+            max-width: 900px;
+            margin: 0 auto 30px;
+        }
+        .create-form {
+            display: flex;
+            gap: 10px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: var(--shadow);
+        }
+        .create-form input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .create-form input:focus { border-color: var(--accent); background: white; }
+        .create-form input::placeholder { color: #9ca3af; }
+        .create-form button {
+            padding: 10px 22px;
+            background: var(--accent);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
             cursor: pointer;
-            font-size: 16px;
+            transition: background 0.2s, transform 0.1s;
+            white-space: nowrap;
         }
-        ul { list-style: none; padding: 0; }
-        li {
-            background: white;
-            padding: 15px;
-            margin: 8px 0;
-            border-radius: 5px;
+        .create-form button:hover { background: #2563eb; }
+        .create-form button:active { transform: scale(0.98); }
+
+        /* ---- Calendar grid ---- */
+        .calendars-grid {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        /* ---- Calendar card ---- */
+        .calendar-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.2s, transform 0.2s;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .calendar-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Subtle top accent line */
+        .calendar-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #6366f1);
+            border-radius: 14px 14px 0 0;
+        }
+
+        /* Full-card clickable link */
+        .card-link {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            border-radius: 14px;
+        }
+
+        /* ---- Card top row ---- */
+        .card-top {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
+            margin-bottom: 14px;
         }
-        .folder-info { display: flex; flex-direction: column; gap: 4px; }
-        li a.folder-link {
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            background: #eff6ff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Delete button */
+        .delete-btn {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 6px 8px;
+            border-radius: 8px;
             text-decoration: none;
-            color: #333;
+            color: #9ca3af;
             font-size: 16px;
-            font-weight: bold;
+            transition: all 0.2s;
+            background: transparent;
+            flex-shrink: 0;
         }
-        li a.folder-link:hover { color: #4CAF50; }
-        .stats { font-size: 13px; color: gray; }
-        .stats span.due { color: #e67e22; font-weight: bold; }
-        .stats span.done { color: #4CAF50; font-weight: bold; }
-        .right { display: flex; align-items: center; gap: 10px; }
-        a.delete { color: red; text-decoration: none; font-size: 14px; }
-        .header {
+        .delete-btn:hover {
+            background: #fee2e2;
+            color: var(--red);
+        }
+        .delete-btn span {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1;
+        }
+
+        /* ---- Progress bar ---- */
+        .progress-section {
+            margin-bottom: 14px;
+        }
+        .progress-label {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            font-weight: 500;
         }
-        .logout { color: gray; font-size: 14px; text-decoration: none; }
+        .progress-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green), #16a34a);
+            border-radius: 99px;
+            transition: width 0.4s ease;
+        }
+
+        /* ---- Status pills row ---- */
+        .pills-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .pill {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .pill-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .pill.overdue { background: #fee2e2; color: #b91c1c; }
+        .pill.overdue .pill-dot { background: var(--red); }
+        .pill.warning { background: #fef9c3; color: #854d0e; }
+        .pill.warning .pill-dot { background: var(--yellow); }
+        .pill.ontrack { background: #dcfce7; color: #15803d; }
+        .pill.ontrack .pill-dot { background: var(--green); }
+
+        /* ---- Card footer ---- */
+        .card-footer {
+            display: flex;
+            gap: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .stat-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-divider {
+            width: 1px;
+            background: var(--border);
+            align-self: stretch;
+        }
+
+        /* ---- Empty state ---- */
+        .empty-state {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+        .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state p { font-size: 16px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📁 My Folders</h1>
-        <a class="logout" href="/logout">Logout ({{ current_user.username }})</a>
+
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <h1>📅 My Calendars</h1>
+            <p>Welcome back, {{ current_user.username }}</p>
+        </div>
+        <a class="logout-btn" href="/logout">
+            <span>↩</span> Log out
+        </a>
     </div>
 
-    <form action="/folder/create" method="POST">
-        <input type="text" name="name" placeholder="New folder name..." required>
-        <button type="submit">Create</button>
-    </form>
+    <!-- Create Form -->
+    <div class="create-section">
+        <form class="create-form" action="/calendar/create" method="POST">
+            <input type="text" name="name" placeholder="New calendar name (e.g. Work, Personal, Travel...)" required>
+            <button type="submit">+ Create</button>
+        </form>
+    </div>
 
-    <ul>
-        {% for folder in folders %}
-        <li>
-            <div class="folder-info">
-                <a class="folder-link" href="/folder/{{ folder['id'] }}">📂 {{ folder['name'] }}</a>
-                <span class="stats">
-                    <span class="due">{{ folder_stats[folder['id']]['due'] }} due</span>
-                    &nbsp;·&nbsp;
-                    <span class="done">{{ folder_stats[folder['id']]['done'] }} done</span>
-                    &nbsp;·&nbsp;
-                    {{ folder_stats[folder['id']]['total'] }} total
-                </span>
+    <!-- Calendars Grid -->
+    {% if calendars|length > 0 %}
+    <div class="calendars-grid">
+        {% for cal in calendars %}
+        {% set stats = calendar_stats[cal['id']] %}
+        {% set pct = ((stats['done'] / stats['total']) * 100) | int if stats['total'] > 0 else 0 %}
+        <div class="calendar-card">
+
+            <!-- Full card clickable link -->
+            <a class="card-link" href="/calendar/{{ cal['id'] }}"></a>
+
+            <!-- Top row: icon + title + delete -->
+            <div class="card-top">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="card-icon">📅</div>
+                    <span class="card-title">{{ cal['name'] }}</span>
+                </div>
+                <a class="delete-btn" href="/calendar/delete/{{ cal['id'] }}"
+                   onclick="return confirm('Delete {{ cal['name'] }} and all its tasks?')">
+                    🗑️
+                    <span>Delete</span>
+                </a>
             </div>
-            <div class="right">
-                <a class="delete" href="/folder/delete/{{ folder['id'] }}"
-                   onclick="return confirm('Delete this folder and all its tasks?')">🗑️</a>
+
+            <!-- Progress bar -->
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>Progress</span>
+                    <span>{{ pct }}% complete</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ pct }}%"></div>
+                </div>
             </div>
-        </li>
+
+            <!-- Status pills -->
+            <div class="pills-row">
+                {% if stats['overdue'] > 0 %}
+                    <span class="pill overdue">
+                        <span class="pill-dot"></span>
+                        {{ stats['overdue'] }} overdue
+                    </span>
+                {% endif %}
+                {% if stats['warning'] > 0 %}
+                    <span class="pill warning">
+                        <span class="pill-dot"></span>
+                        {{ stats['warning'] }} due soon
+                    </span>
+                {% endif %}
+                {% if stats['ontrack'] > 0 %}
+                    <span class="pill ontrack">
+                        <span class="pill-dot"></span>
+                        {{ stats['ontrack'] }} on track
+                    </span>
+                {% endif %}
+                {% if stats['total'] == 0 %}
+                    <span style="font-size:13px; color:#9ca3af;">No tasks yet</span>
+                {% endif %}
+            </div>
+
+            <!-- Footer stats -->
+            <div class="card-footer">
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats['total'] }}</span>
+                    <span class="stat-label">Total</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: var(--green);">{{ stats['done'] }}</span>
+                    <span class="stat-label">Done</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: var(--accent);">{{ stats['due'] }}</span>
+                    <span class="stat-label">Remaining</span>
+                </div>
+            </div>
+
+        </div>
         {% endfor %}
-    </ul>
+    </div>
 
-    {% if folders|length == 0 %}
-        <p style="color: gray;">No folders yet. Create one above!</p>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>No calendars yet. Create your first one above!</p>
+    </div>
     {% endif %}
+
 </body>
 </html>
