@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --border: #e4e7ec;
+            --text: #1a1d23;
+            --muted: #6b7280;
+            --accent: #3b82f6;
+            --green: #22c55e;
+            --red: #ef4444;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+        }
+        [data-theme="dark"] {
+            --bg: #0f1117;
+            --card: #1a1d23;
+            --border: #2d3038;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 40px 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container { max-width: 500px; margin: 0 auto; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header h1 { font-size: 24px; font-weight: 700; }
+        .header-right { display: flex; gap: 10px; }
+
+        a.back, .dark-btn {
+            padding: 8px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        a.back:hover { color: var(--accent); border-color: var(--accent); }
+        .dark-btn:hover { color: var(--text); border-color: var(--text); }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .card-desc {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 14px;
+        }
+        input[type="email"]:focus { border-color: var(--accent); }
+
+        .save-btn {
+            padding: 10px 24px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .save-btn:hover { background: #2563eb; }
+
+        .flash-success {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 13px;
+            color: #1d4ed8;
+            margin-top: 14px;
+            line-height: 1.5;
+        }
+        [data-theme="dark"] .info-box {
+            background: #1e3a5f;
+            border-color: #2563eb;
+            color: #93c5fd;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-badge.active { background: #dcfce7; color: #15803d; }
+        .status-badge.inactive { background: #f3f4f6; color: #6b7280; }
+        [data-theme="dark"] .status-badge.inactive { background: #2d3038; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Settings</h1>
+            <div class="header-right">
+                <button class="dark-btn" id="dark-btn" onclick="toggleDark()">🌙</button>
+                <a class="back" href="/">← Back</a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash-{{ category }}">✅ {{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <!-- Email reminders card -->
+        <div class="card">
+            <div class="card-title">📧 Email Reminders</div>
+            <div class="card-desc">
+                Get an email the day before any task is due. Leave blank to disable reminders.
+                <br><br>
+                Status:
+                {% if user and user['email'] %}
+                    <span class="status-badge active">✅ Active — {{ user['email'] }}</span>
+                {% else %}
+                    <span class="status-badge inactive">○ Not set up</span>
+                {% endif %}
+            </div>
+
+            <form method="POST">
+                <label>Your email address</label>
+                <input type="email" name="email"
+                    placeholder="you@example.com"
+                    value="{{ user['email'] if user and user['email'] else '' }}">
+                <button type="submit" class="save-btn">💾 Save</button>
+            </form>
+
+            <div class="info-box">
+                📬 Reminders are sent at 8:00 AM UTC every day for tasks due the following day.
+                To stop reminders, clear the email field and save.
+            </div>
+        </div>
+
+        <!-- Account card -->
+        <div class="card">
+            <div class="card-title">👤 Account</div>
+            <div class="card-desc">Logged in as <strong>{{ current_user.username }}</strong></div>
+            <a href="/logout" style="color: var(--red); font-size:14px; font-weight:600; text-decoration:none;">↩ Log out</a>
+        </div>
+    </div>
+
+    <script>
+        function toggleDark() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateBtn();
+        }
+        function updateBtn() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+        }
+        updateBtn();
+    </script>
+</body>
+</html>

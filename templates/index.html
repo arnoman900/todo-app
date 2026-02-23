@@ -3,6 +3,12 @@
 <head>
     <title>My Calendars</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -19,12 +25,23 @@
             --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
             --shadow-hover: 0 4px 12px rgba(0,0,0,0.10), 0 8px 28px rgba(0,0,0,0.08);
         }
+        [data-theme="dark"] {
+            --bg: #0f1117;
+            --card: #1a1d23;
+            --border: #2d3038;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+            --shadow-hover: 0 4px 12px rgba(0,0,0,0.4), 0 8px 28px rgba(0,0,0,0.3);
+        }
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background-color: var(--bg);
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             padding: 40px 20px 60px;
+            transition: background 0.3s, color 0.3s;
         }
 
         /* ---- Top bar ---- */
@@ -35,22 +52,15 @@
             justify-content: space-between;
             align-items: center;
         }
-        .topbar-left h1 {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: -0.5px;
-        }
-        .topbar-left p {
-            font-size: 14px;
-            color: var(--muted);
-            margin-top: 3px;
-        }
-        .logout-btn {
+        .topbar-left h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+        .topbar-left p { font-size: 14px; color: var(--muted); margin-top: 3px; }
+        .topbar-right { display: flex; gap: 8px; align-items: center; }
+
+        .icon-btn {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
+            gap: 6px;
+            padding: 8px 14px;
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -58,15 +68,14 @@
             text-decoration: none;
             font-size: 14px;
             font-weight: 500;
+            cursor: pointer;
             transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
         }
-        .logout-btn:hover { background: #f9fafb; color: var(--red); border-color: var(--red); }
+        .icon-btn:hover { color: var(--text); border-color: var(--text); }
 
         /* ---- Create form ---- */
-        .create-section {
-            max-width: 900px;
-            margin: 0 auto 30px;
-        }
+        .create-section { max-width: 900px; margin: 0 auto 30px; }
         .create-form {
             display: flex;
             gap: 10px;
@@ -88,8 +97,8 @@
             outline: none;
             transition: border-color 0.2s;
         }
-        .create-form input:focus { border-color: var(--accent); background: white; }
-        .create-form input::placeholder { color: #9ca3af; }
+        .create-form input:focus { border-color: var(--accent); }
+        .create-form input::placeholder { color: var(--muted); }
         .create-form button {
             padding: 10px 22px;
             background: var(--accent);
@@ -100,11 +109,9 @@
             font-weight: 600;
             font-family: 'DM Sans', sans-serif;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            white-space: nowrap;
+            transition: background 0.2s;
         }
         .create-form button:hover { background: #2563eb; }
-        .create-form button:active { transform: scale(0.98); }
 
         /* ---- Calendar grid ---- */
         .calendars-grid {
@@ -124,15 +131,9 @@
             position: relative;
             box-shadow: var(--shadow);
             transition: box-shadow 0.2s, transform 0.2s;
-            cursor: pointer;
             overflow: hidden;
         }
-        .calendar-card:hover {
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-2px);
-        }
-
-        /* Subtle top accent line */
+        .calendar-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
         .calendar-card::before {
             content: '';
             position: absolute;
@@ -141,8 +142,6 @@
             background: linear-gradient(90deg, var(--accent), #6366f1);
             border-radius: 14px 14px 0 0;
         }
-
-        /* Full-card clickable link */
         .card-link {
             position: absolute;
             inset: 0;
@@ -157,25 +156,45 @@
             align-items: flex-start;
             margin-bottom: 14px;
         }
-        .card-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: -0.3px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .card-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
         .card-icon {
-            width: 32px;
-            height: 32px;
+            width: 34px; height: 34px;
             background: #eff6ff;
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 16px;
             flex-shrink: 0;
+        }
+        [data-theme="dark"] .card-icon { background: #1e3a5f; }
+
+        .card-title-wrap { flex: 1; min-width: 0; }
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: text;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .card-title:hover { background: var(--bg); }
+        .rename-hint { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+        /* Rename input */
+        .rename-input {
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            padding: 2px 8px;
+            outline: none;
+            width: 100%;
         }
 
         /* Delete button */
@@ -185,140 +204,68 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
+            gap: 2px;
             padding: 6px 8px;
             border-radius: 8px;
             text-decoration: none;
-            color: #9ca3af;
-            font-size: 16px;
+            color: var(--muted);
             transition: all 0.2s;
-            background: transparent;
             flex-shrink: 0;
         }
-        .delete-btn:hover {
-            background: #fee2e2;
-            color: var(--red);
-        }
-        .delete-btn span {
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            line-height: 1;
-        }
+        .delete-btn:hover { background: #fee2e2; color: var(--red); }
+        .delete-btn .del-icon { font-size: 16px; }
+        .delete-btn .del-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
 
         /* ---- Progress bar ---- */
-        .progress-section {
-            margin-bottom: 14px;
-        }
+        .progress-section { margin-bottom: 14px; }
         .progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 6px;
-            font-weight: 500;
+            display: flex; justify-content: space-between;
+            font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500;
         }
-        .progress-bar {
-            height: 6px;
-            background: #e5e7eb;
-            border-radius: 99px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--green), #16a34a);
-            border-radius: 99px;
-            transition: width 0.4s ease;
-        }
+        .progress-bar { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), #16a34a); border-radius: 99px; transition: width 0.4s ease; }
 
-        /* ---- Status pills row ---- */
-        .pills-row {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-bottom: 14px;
-        }
-        .pill {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 99px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .pill-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
+        /* ---- Pills ---- */
+        .pills-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+        .pill { display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+        .pill-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
         .pill.overdue { background: #fee2e2; color: #b91c1c; }
         .pill.overdue .pill-dot { background: var(--red); }
         .pill.warning { background: #fef9c3; color: #854d0e; }
         .pill.warning .pill-dot { background: var(--yellow); }
         .pill.ontrack { background: #dcfce7; color: #15803d; }
         .pill.ontrack .pill-dot { background: var(--green); }
+        [data-theme="dark"] .pill.overdue { background: #3b0f0f; color: #fca5a5; }
+        [data-theme="dark"] .pill.warning { background: #3b2f0f; color: #fde68a; }
+        [data-theme="dark"] .pill.ontrack { background: #0f3b1f; color: #86efac; }
 
         /* ---- Card footer ---- */
-        .card-footer {
-            display: flex;
-            gap: 16px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-        }
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .stat-number {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text);
-            font-family: 'DM Mono', monospace;
-            line-height: 1;
-        }
-        .stat-label {
-            font-size: 11px;
-            color: var(--muted);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .stat-divider {
-            width: 1px;
-            background: var(--border);
-            align-self: stretch;
-        }
+        .card-footer { display: flex; gap: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .stat-item { display: flex; flex-direction: column; gap: 2px; }
+        .stat-number { font-size: 20px; font-weight: 700; font-family: 'DM Mono', monospace; line-height: 1; }
+        .stat-label { font-size: 11px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-divider { width: 1px; background: var(--border); align-self: stretch; }
 
         /* ---- Empty state ---- */
-        .empty-state {
-            max-width: 900px;
-            margin: 0 auto;
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--muted);
-        }
+        .empty-state { max-width: 900px; margin: 0 auto; text-align: center; padding: 60px 20px; color: var(--muted); }
         .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
         .empty-state p { font-size: 16px; }
     </style>
 </head>
 <body>
 
-    <!-- Top Bar -->
     <div class="topbar">
         <div class="topbar-left">
             <h1>📅 My Calendars</h1>
             <p>Welcome back, {{ current_user.username }}</p>
         </div>
-        <a class="logout-btn" href="/logout">
-            <span>↩</span> Log out
-        </a>
+        <div class="topbar-right">
+            <button class="icon-btn" id="dark-btn" onclick="toggleDark()">🌙</button>
+            <a class="icon-btn" href="/settings">⚙️ Settings</a>
+            <a class="icon-btn" href="/logout">↩ Log out</a>
+        </div>
     </div>
 
-    <!-- Create Form -->
     <div class="create-section">
         <form class="create-form" action="/calendar/create" method="POST">
             <input type="text" name="name" placeholder="New calendar name (e.g. Work, Personal, Travel...)" required>
@@ -326,31 +273,32 @@
         </form>
     </div>
 
-    <!-- Calendars Grid -->
     {% if calendars|length > 0 %}
     <div class="calendars-grid">
         {% for cal in calendars %}
         {% set stats = calendar_stats[cal['id']] %}
         {% set pct = ((stats['done'] / stats['total']) * 100) | int if stats['total'] > 0 else 0 %}
         <div class="calendar-card">
-
-            <!-- Full card clickable link -->
             <a class="card-link" href="/calendar/{{ cal['id'] }}"></a>
 
-            <!-- Top row: icon + title + delete -->
             <div class="card-top">
-                <div style="display:flex; align-items:center; gap:10px;">
+                <div class="card-left">
                     <div class="card-icon">📅</div>
-                    <span class="card-title">{{ cal['name'] }}</span>
+                    <div class="card-title-wrap">
+                        <div class="card-title"
+                             id="cal-name-{{ cal['id'] }}"
+                             title="Click to rename"
+                             onclick="startRename({{ cal['id'] }}, this)">{{ cal['name'] }}</div>
+                        <div class="rename-hint">Click name to rename</div>
+                    </div>
                 </div>
                 <a class="delete-btn" href="/calendar/delete/{{ cal['id'] }}"
                    onclick="return confirm('Delete {{ cal['name'] }} and all its tasks?')">
-                    🗑️
-                    <span>Delete</span>
+                    <span class="del-icon">🗑️</span>
+                    <span class="del-label">Delete</span>
                 </a>
             </div>
 
-            <!-- Progress bar -->
             <div class="progress-section">
                 <div class="progress-label">
                     <span>Progress</span>
@@ -361,32 +309,21 @@
                 </div>
             </div>
 
-            <!-- Status pills -->
             <div class="pills-row">
                 {% if stats['overdue'] > 0 %}
-                    <span class="pill overdue">
-                        <span class="pill-dot"></span>
-                        {{ stats['overdue'] }} overdue
-                    </span>
+                    <span class="pill overdue"><span class="pill-dot"></span>{{ stats['overdue'] }} overdue</span>
                 {% endif %}
                 {% if stats['warning'] > 0 %}
-                    <span class="pill warning">
-                        <span class="pill-dot"></span>
-                        {{ stats['warning'] }} due soon
-                    </span>
+                    <span class="pill warning"><span class="pill-dot"></span>{{ stats['warning'] }} due soon</span>
                 {% endif %}
                 {% if stats['ontrack'] > 0 %}
-                    <span class="pill ontrack">
-                        <span class="pill-dot"></span>
-                        {{ stats['ontrack'] }} on track
-                    </span>
+                    <span class="pill ontrack"><span class="pill-dot"></span>{{ stats['ontrack'] }} on track</span>
                 {% endif %}
                 {% if stats['total'] == 0 %}
-                    <span style="font-size:13px; color:#9ca3af;">No tasks yet</span>
+                    <span style="font-size:13px; color:var(--muted);">No tasks yet</span>
                 {% endif %}
             </div>
 
-            <!-- Footer stats -->
             <div class="card-footer">
                 <div class="stat-item">
                     <span class="stat-number">{{ stats['total'] }}</span>
@@ -400,7 +337,7 @@
                 <div class="stat-divider"></div>
                 <div class="stat-item">
                     <span class="stat-number" style="color: var(--accent);">{{ stats['due'] }}</span>
-                    <span class="stat-label">Remaining</span>
+                    <span class="stat-label">Left</span>
                 </div>
             </div>
 
@@ -415,5 +352,69 @@
     </div>
     {% endif %}
 
+    <script>
+        // ---- Dark mode ----
+        function toggleDark() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateDarkBtn();
+        }
+        function updateDarkBtn() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+        }
+        updateDarkBtn();
+
+        // ---- Rename calendar ----
+        function startRename(calId, el) {
+            // Don't start rename if click was on a link (card-link)
+            if (event.target.closest('.card-link')) return;
+            event.stopPropagation();
+
+            const currentName = el.textContent.trim();
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentName;
+            input.className = 'rename-input';
+            input.onclick = e => e.stopPropagation();
+            input.onblur = () => saveRename(calId, input, currentName);
+            input.onkeydown = e => {
+                if (e.key === 'Enter') input.blur();
+                if (e.key === 'Escape') {
+                    el.textContent = currentName;
+                    el.onclick = () => startRename(calId, el);
+                }
+            };
+            el.textContent = '';
+            el.appendChild(input);
+            el.onclick = null;
+            input.focus();
+            input.select();
+        }
+
+        async function saveRename(calId, input, fallback) {
+            const name = input.value.trim();
+            const el = document.getElementById(`cal-name-${calId}`);
+            if (!name) {
+                el.textContent = fallback;
+                el.onclick = () => startRename(calId, el);
+                return;
+            }
+            try {
+                const res = await fetch(`/api/calendar/rename/${calId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                const data = await res.json();
+                el.textContent = data.success ? data.name : fallback;
+            } catch {
+                el.textContent = fallback;
+            }
+            el.onclick = () => startRename(calId, el);
+        }
+    </script>
 </body>
 </html>

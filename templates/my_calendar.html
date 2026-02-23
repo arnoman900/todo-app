@@ -3,505 +3,279 @@
 <head>
     <title>{{ calendar['name'] }}</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+        :root {
+            --bg: #f0f2f5; --card: #ffffff; --border: #e4e7ec;
+            --text: #1a1d23; --muted: #6b7280; --accent: #3b82f6;
+            --green: #22c55e; --yellow: #eab308; --red: #ef4444;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+        }
+        [data-theme="dark"] {
+            --bg: #0f1117; --card: #1a1d23; --border: #2d3038;
+            --text: #f1f5f9; --muted: #94a3b8;
+        }
+
         body {
             font-family: 'DM Sans', sans-serif;
-            max-width: 950px;
-            margin: 30px auto;
-            background-color: #f0f2f5;
-            padding: 0 20px;
+            max-width: 1000px; margin: 0 auto;
+            background: var(--bg); color: var(--text);
+            padding: 30px 20px 60px;
+            transition: background 0.3s, color 0.3s;
         }
-        h1 { color: #1a1d23; margin: 0; }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        h1 { font-size: 22px; font-weight: 700; }
+        .header-right { display: flex; gap: 8px; }
+
+        .icon-btn {
+            display: flex; align-items: center; gap: 5px;
+            padding: 7px 13px; background: var(--card);
+            border: 1px solid var(--border); border-radius: 8px;
+            color: var(--muted); text-decoration: none;
+            font-size: 13px; font-weight: 500; cursor: pointer;
+            transition: all 0.2s; font-family: 'DM Sans', sans-serif;
         }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        a.back {
-            color: #6b7280;
-            text-decoration: none;
-            font-size: 14px;
-            padding: 6px 12px;
-            background: white;
-            border: 1px solid #e4e7ec;
-            border-radius: 8px;
-        }
-        a.back:hover { color: #3b82f6; border-color: #3b82f6; }
+        .icon-btn:hover { color: var(--text); border-color: var(--text); }
 
-        .header-right { display: flex; gap: 10px; align-items: center; }
-
-        /* Print button */
-        .print-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            background: white;
-            border: 1px solid #e4e7ec;
-            border-radius: 8px;
-            color: #374151;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: 'DM Sans', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .print-btn:hover { background: #1a1d23; color: white; border-color: #1a1d23; }
-
-        /* View switcher */
         .view-switcher {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 20px;
-            background: white;
-            padding: 6px;
-            border-radius: 10px;
-            border: 1px solid #e4e7ec;
-            width: fit-content;
+            display: flex; gap: 4px; margin-bottom: 18px;
+            background: var(--card); padding: 5px;
+            border-radius: 10px; border: 1px solid var(--border); width: fit-content;
         }
         .view-btn {
-            padding: 7px 20px;
-            border: none;
-            border-radius: 7px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
+            padding: 6px 18px; border: none; border-radius: 7px;
+            cursor: pointer; font-size: 13px; font-weight: 600;
             font-family: 'DM Sans', sans-serif;
-            background: transparent;
-            color: #6b7280;
-            transition: all 0.2s;
+            background: transparent; color: var(--muted); transition: all 0.2s;
         }
-        .view-btn.active { background: #3b82f6; color: white; }
-        .view-btn:hover:not(.active) { background: #f3f4f6; color: #1a1d23; }
+        .view-btn.active { background: var(--accent); color: white; }
+        .view-btn:hover:not(.active) { background: var(--bg); color: var(--text); }
 
-        /* Navigation */
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+        .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
         .nav button {
-            padding: 8px 16px;
-            border: 1px solid #e4e7ec;
-            border-radius: 8px;
-            background: white;
-            color: #374151;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: 'DM Sans', sans-serif;
-            transition: all 0.2s;
+            padding: 7px 14px; border: 1px solid var(--border); border-radius: 8px;
+            background: var(--card); color: var(--text); cursor: pointer;
+            font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
         }
-        .nav button:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
-        .nav-title { font-size: 18px; font-weight: 700; color: #1a1d23; }
+        .nav button:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .nav-title { font-size: 17px; font-weight: 700; }
 
         /* Week */
-        .week-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-        }
+        .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
         .week-day {
-            background: white;
-            border-radius: 10px;
-            padding: 10px;
-            min-height: 130px;
-            cursor: pointer;
-            transition: box-shadow 0.2s, transform 0.2s;
-            border: 1px solid #e4e7ec;
+            background: var(--card); border-radius: 10px; padding: 10px;
+            min-height: 130px; cursor: pointer;
+            border: 1px solid var(--border); transition: box-shadow 0.2s, transform 0.2s;
         }
         .week-day:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
-        .week-day.today { border: 2px solid #3b82f6; }
-        .week-day-header { font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
-        .week-day-number { font-size: 20px; font-weight: 700; color: #1a1d23; margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+        .week-day.today { border: 2px solid var(--accent); }
+        .week-day.drag-over { background: #eff6ff !important; border: 2px dashed var(--accent) !important; }
+        [data-theme="dark"] .week-day.drag-over { background: #1e3a5f !important; }
+        .week-day-header { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .week-day-number { font-size: 19px; font-weight: 700; font-family: 'DM Mono', monospace; margin-bottom: 6px; }
 
         /* Month */
-        .month-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-        }
-        .month-day-name {
-            text-align: center;
-            font-size: 12px;
-            font-weight: 700;
-            color: #9ca3af;
-            padding: 8px 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+        .month-day-name { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); padding: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
         .month-day {
-            background: white;
-            border-radius: 8px;
-            padding: 8px;
-            min-height: 90px;
-            cursor: pointer;
-            transition: box-shadow 0.2s;
-            border: 1px solid #e4e7ec;
+            background: var(--card); border-radius: 7px; padding: 6px;
+            min-height: 82px; cursor: pointer; border: 1px solid var(--border); transition: box-shadow 0.2s;
         }
         .month-day:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .month-day.other-month { background: #f9fafb; opacity: 0.5; pointer-events: none; }
-        .month-day.today { border: 2px solid #3b82f6; }
-        .month-day-number { font-size: 13px; font-weight: 700; color: #1a1d23; margin-bottom: 4px; }
+        .month-day.other-month { background: var(--bg); opacity: 0.5; pointer-events: none; }
+        .month-day.today { border: 2px solid var(--accent); }
+        .month-day.drag-over { background: #eff6ff !important; border: 2px dashed var(--accent) !important; }
+        [data-theme="dark"] .month-day.drag-over { background: #1e3a5f !important; }
+        .month-day-number { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
 
         /* Year */
         .year-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        .year-month { background: white; border-radius: 10px; padding: 12px; border: 1px solid #e4e7ec; }
-        .year-month-title { font-size: 13px; font-weight: 700; color: #1a1d23; margin-bottom: 8px; text-align: center; }
+        .year-month { background: var(--card); border-radius: 10px; padding: 11px; border: 1px solid var(--border); }
+        .year-month-title { font-size: 12px; font-weight: 700; margin-bottom: 7px; text-align: center; }
         .year-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-        .year-day-name { font-size: 9px; color: #9ca3af; text-align: center; font-weight: 600; }
-        .year-day { font-size: 10px; text-align: center; padding: 3px 2px; border-radius: 4px; cursor: pointer; color: #374151; }
+        .year-day-name { font-size: 8px; color: var(--muted); text-align: center; font-weight: 700; }
+        .year-day { font-size: 9.5px; text-align: center; padding: 2px; border-radius: 3px; cursor: pointer; color: var(--text); }
         .year-day:hover { background: #eff6ff; }
-        .year-day.today { background: #3b82f6; color: white; border-radius: 50%; }
+        [data-theme="dark"] .year-day:hover { background: #1e3a5f; }
+        .year-day.today { background: var(--accent); color: white; border-radius: 50%; }
 
-        /* Pills */
+        /* Task pills */
         .task-pill {
-            font-size: 11px;
-            padding: 2px 7px;
-            border-radius: 99px;
-            margin: 2px 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: white;
-            display: block;
-            font-weight: 500;
+            font-size: 11px; padding: 2px 7px; border-radius: 99px;
+            margin: 2px 0; white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; color: white; display: block;
+            font-weight: 500; cursor: grab; user-select: none;
+            transition: opacity 0.2s;
         }
-        .task-pill.overdue { background-color: #ef4444; }
-        .task-pill.warning { background-color: #eab308; color: #1a1d23; }
-        .task-pill.ontrack { background-color: #22c55e; }
-        .task-pill.done { background-color: #9ca3af; text-decoration: line-through; }
+        .task-pill:active { cursor: grabbing; opacity: 0.7; }
+        .task-pill.overdue { background: var(--red); }
+        .task-pill.warning { background: var(--yellow); color: #1a1d23; }
+        .task-pill.ontrack { background: var(--green); }
+        .task-pill.done { background: #9ca3af; text-decoration: line-through; }
+        .task-pill.recurring::after { content: ' 🔁'; font-size: 9px; }
 
-        /* Dots */
-        .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin: 1px; }
-        .dot.overdue { background-color: #ef4444; }
-        .dot.warning { background-color: #eab308; }
-        .dot.ontrack { background-color: #22c55e; }
-        .dot.done { background-color: #9ca3af; }
-        .dots-row { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
+        /* Dots for year */
+        .dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; margin: 1px; }
+        .dot.overdue { background: var(--red); }
+        .dot.warning { background: var(--yellow); }
+        .dot.ontrack { background: var(--green); }
+        .dot.done { background: #9ca3af; }
+        .dots-row { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 1px; }
 
         /* Modal */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
+            display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            background: rgba(0,0,0,0.45); z-index: 1000;
+            justify-content: center; align-items: center;
         }
         .modal-overlay.open { display: flex; }
         .modal {
-            background: white;
-            border-radius: 14px;
-            padding: 25px;
-            width: 440px;
-            max-width: 95%;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            background: var(--card); border-radius: 14px; padding: 24px;
+            width: 460px; max-width: 95%; max-height: 88vh;
+            overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            border: 1px solid var(--border);
         }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        .modal-title { font-size: 16px; font-weight: 700; color: #1a1d23; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-title { font-size: 16px; font-weight: 700; }
         .modal-close {
-            background: #f3f4f6;
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            font-size: 14px;
-            cursor: pointer;
-            color: #6b7280;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--bg); border: none; width: 28px; height: 28px;
+            border-radius: 50%; font-size: 13px; cursor: pointer; color: var(--muted);
+            display: flex; align-items: center; justify-content: center;
         }
-        .modal-close:hover { background: #fee2e2; color: #ef4444; }
+        .modal-close:hover { background: #fee2e2; color: var(--red); }
 
+        /* Add task form */
         .add-task-form {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 16px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e4e7ec;
+            display: flex; flex-direction: column; gap: 8px;
+            margin-bottom: 16px; padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
         }
-        .add-task-form input {
-            padding: 9px 12px;
-            border: 1px solid #e4e7ec;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: 'DM Sans', sans-serif;
-            color: #1a1d23;
-            outline: none;
+        .add-task-form input, .add-task-form select {
+            padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 14px; font-family: 'DM Sans', sans-serif;
+            color: var(--text); background: var(--bg); outline: none;
             transition: border-color 0.2s;
         }
-        .add-task-form input:focus { border-color: #3b82f6; }
+        .add-task-form input:focus, .add-task-form select:focus { border-color: var(--accent); }
         .add-task-form button {
-            padding: 9px;
-            background: #22c55e;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: 'DM Sans', sans-serif;
-            cursor: pointer;
-            transition: background 0.2s;
+            padding: 9px; background: var(--green); color: white; border: none;
+            border-radius: 8px; font-size: 14px; font-weight: 600;
+            font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.2s;
         }
         .add-task-form button:hover { background: #16a34a; }
 
+        /* Task items */
         .modal-task {
-            padding: 11px 13px;
-            border-radius: 9px;
-            margin-bottom: 8px;
-            border-left: 4px solid #e4e7ec;
+            padding: 11px 13px; border-radius: 9px; margin-bottom: 8px;
+            border-left: 4px solid var(--border);
         }
-        .modal-task.overdue { background: #fee2e2; border-left-color: #ef4444; }
-        .modal-task.warning { background: #fef9c3; border-left-color: #eab308; }
-        .modal-task.ontrack { background: #dcfce7; border-left-color: #22c55e; }
-        .modal-task.done { background: #f9fafb; border-left-color: #9ca3af; }
-        .modal-task-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-        }
-        .modal-task-name { font-size: 14px; font-weight: 600; color: #1a1d23; flex: 1; }
-        .modal-task-name.done-text { text-decoration: line-through; color: #9ca3af; }
+        .modal-task.overdue { background: #fee2e2; border-left-color: var(--red); }
+        .modal-task.warning { background: #fef9c3; border-left-color: var(--yellow); }
+        .modal-task.ontrack { background: #dcfce7; border-left-color: var(--green); }
+        .modal-task.done { background: var(--bg); border-left-color: #9ca3af; }
+        [data-theme="dark"] .modal-task.overdue { background: #3b0f0f; }
+        [data-theme="dark"] .modal-task.warning { background: #3b2f0f; }
+        [data-theme="dark"] .modal-task.ontrack { background: #0f3b1f; }
+
+        .modal-task-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .modal-task-info { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+        .modal-task-name { font-size: 14px; font-weight: 600; color: var(--text); }
+        .modal-task-name.done-text { text-decoration: line-through; color: var(--muted); }
+        .modal-task-recur { font-size: 11px; color: var(--muted); }
+
         .modal-task-actions { display: flex; gap: 5px; }
         .btn-small {
-            padding: 4px 10px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: 'DM Sans', sans-serif;
-            color: white;
-            transition: opacity 0.2s;
+            padding: 4px 9px; border: none; border-radius: 6px; cursor: pointer;
+            font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+            color: white; transition: opacity 0.2s;
         }
         .btn-small:hover { opacity: 0.85; }
-        .btn-toggle { background: #22c55e; }
+        .btn-toggle { background: var(--green); }
         .btn-toggle.undo { background: #9ca3af; }
-        .btn-edit { background: #3b82f6; }
-        .btn-delete { background: #ef4444; }
-        .edit-form { display: none; flex-direction: column; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e4e7ec; }
+        .btn-edit { background: var(--accent); }
+        .btn-delete { background: var(--red); }
+
+        /* Inline edit form */
+        .edit-form { display: none; flex-direction: column; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
         .edit-form.open { display: flex; }
-        .edit-form input { padding: 7px 10px; border: 1px solid #e4e7ec; border-radius: 6px; font-size: 13px; font-family: 'DM Sans', sans-serif; }
+        .edit-form input, .edit-form select {
+            padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px;
+            font-size: 13px; font-family: 'DM Sans', sans-serif;
+            background: var(--bg); color: var(--text);
+        }
         .edit-form-btns { display: flex; gap: 6px; }
-        .btn-save { background: #3b82f6; }
+        .btn-save { background: var(--accent); }
         .btn-cancel { background: #9ca3af; }
-        .modal-empty { color: #9ca3af; text-align: center; padding: 20px 0; font-size: 14px; }
+
+        .modal-empty { color: var(--muted); text-align: center; padding: 20px 0; font-size: 14px; }
 
         /* ===================== */
         /* PRINT STYLES          */
         /* ===================== */
         @media print {
-            @page {
-                size: A4 landscape;
-                margin: 15mm 12mm;
-            }
-
-            body {
-                background: white !important;
-                margin: 0;
-                padding: 0;
-                font-family: 'DM Sans', Arial, sans-serif;
-            }
-
-            /* Hide everything except the print view */
-            .header,
-            .view-switcher,
-            .nav,
-            .modal-overlay,
-            #calendar-container { display: none !important; }
-
+            @page { size: A4 landscape; margin: 15mm 12mm; }
+            body { background: white !important; margin: 0; padding: 0; }
+            .header, .view-switcher, .nav, .modal-overlay, #calendar-container { display: none !important; }
             .print-view { display: block !important; }
-
-            /* Print header */
-            .print-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-end;
-                margin-bottom: 16px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #1a1d23;
-            }
-            .print-title {
-                font-size: 22px;
-                font-weight: 700;
-                color: #1a1d23;
-            }
-            .print-subtitle {
-                font-size: 13px;
-                color: #6b7280;
-            }
-
-            /* Month print grid */
-            .print-month-grid {
-                display: grid;
-                grid-template-columns: repeat(7, 1fr);
-                gap: 3px;
-                page-break-inside: avoid;
-            }
-            .print-day-name {
-                text-align: center;
-                font-size: 10px;
-                font-weight: 700;
-                color: #6b7280;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                padding: 4px;
-                background: #f3f4f6;
-                border-radius: 4px;
-            }
-            .print-day {
-                border: 1px solid #e4e7ec;
-                border-radius: 5px;
-                padding: 5px;
-                min-height: 70px;
-                background: white;
-            }
+            .print-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #1a1d23; }
+            .print-title { font-size: 22px; font-weight: 700; color: #1a1d23; }
+            .print-subtitle { font-size: 13px; color: #6b7280; }
+            .print-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+            .print-day-name { text-align: center; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px; background: #f3f4f6; border-radius: 4px; }
+            .print-day { border: 1px solid #e4e7ec; border-radius: 5px; padding: 5px; min-height: 70px; background: white; }
             .print-day.other-month { background: #f9fafb; }
             .print-day.today-print { border: 2px solid #3b82f6; }
-            .print-day-number {
-                font-size: 11px;
-                font-weight: 700;
-                color: #1a1d23;
-                margin-bottom: 3px;
-            }
-            .print-task {
-                font-size: 9px;
-                padding: 1px 5px;
-                border-radius: 3px;
-                margin: 1px 0;
-                display: block;
-                color: white;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
+            .print-day-number { font-size: 11px; font-weight: 700; color: #1a1d23; margin-bottom: 3px; }
+            .print-task { font-size: 9px; padding: 1px 5px; border-radius: 3px; margin: 1px 0; display: block; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .print-task.overdue { background: #ef4444; }
             .print-task.warning { background: #eab308; color: #1a1d23; }
             .print-task.ontrack { background: #22c55e; }
             .print-task.done { background: #9ca3af; text-decoration: line-through; }
-
-            /* Year print */
-            .print-year-grid {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 10px;
-            }
-            .print-year-month {
-                border: 1px solid #e4e7ec;
-                border-radius: 6px;
-                padding: 8px;
-            }
-            .print-year-month-title {
-                font-size: 11px;
-                font-weight: 700;
-                color: #1a1d23;
-                margin-bottom: 6px;
-                text-align: center;
-            }
-            .print-year-mini-grid {
-                display: grid;
-                grid-template-columns: repeat(7, 1fr);
-                gap: 1px;
-            }
-            .print-year-day-name {
-                font-size: 7px;
-                color: #9ca3af;
-                text-align: center;
-                font-weight: 700;
-            }
-            .print-year-day {
-                font-size: 7.5px;
-                text-align: center;
-                padding: 1px;
-                border-radius: 2px;
-                color: #374151;
-                position: relative;
-            }
+            .print-year-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+            .print-year-month { border: 1px solid #e4e7ec; border-radius: 6px; padding: 8px; }
+            .print-year-month-title { font-size: 11px; font-weight: 700; color: #1a1d23; margin-bottom: 6px; text-align: center; }
+            .print-year-mini-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+            .print-year-day-name { font-size: 7px; color: #9ca3af; text-align: center; font-weight: 700; }
+            .print-year-day { font-size: 7.5px; text-align: center; padding: 1px; color: #374151; }
             .print-year-day.has-tasks { font-weight: 700; }
-            .print-year-day.today-print {
-                background: #3b82f6;
-                color: white;
-                border-radius: 50%;
-            }
-            .print-year-dots {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 1px;
-                margin-top: 1px;
-            }
-            .print-year-dot {
-                width: 4px;
-                height: 4px;
-                border-radius: 50%;
-                display: inline-block;
-            }
+            .print-year-day.today-print { background: #3b82f6; color: white; border-radius: 50%; }
+            .print-year-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; margin-top: 1px; }
+            .print-year-dot { width: 4px; height: 4px; border-radius: 50%; display: inline-block; }
             .print-year-dot.overdue { background: #ef4444; }
             .print-year-dot.warning { background: #eab308; }
             .print-year-dot.ontrack { background: #22c55e; }
             .print-year-dot.done { background: #9ca3af; }
-
-            /* Legend */
-            .print-legend {
-                display: flex;
-                gap: 16px;
-                margin-top: 12px;
-                padding-top: 8px;
-                border-top: 1px solid #e4e7ec;
-                flex-wrap: wrap;
-            }
-            .legend-item {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                font-size: 10px;
-                color: #374151;
-                font-weight: 500;
-            }
-            .legend-dot {
-                width: 10px;
-                height: 10px;
-                border-radius: 2px;
-            }
+            .print-legend { display: flex; gap: 16px; margin-top: 12px; padding-top: 8px; border-top: 1px solid #e4e7ec; }
+            .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #374151; font-weight: 500; }
+            .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
             .legend-dot.overdue { background: #ef4444; }
             .legend-dot.warning { background: #eab308; }
             .legend-dot.ontrack { background: #22c55e; }
             .legend-dot.done { background: #9ca3af; }
         }
-
-        /* Print view hidden on screen */
         .print-view { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- Screen header -->
     <div class="header">
         <div class="header-left">
-            <a class="back" href="/">← Back</a>
+            <a class="icon-btn" href="/">← Back</a>
             <h1>📅 {{ calendar['name'] }}</h1>
         </div>
         <div class="header-right">
-            <button class="print-btn" onclick="triggerPrint()">🖨️ Print</button>
+            <button class="icon-btn" id="dark-btn" onclick="toggleDark()">🌙</button>
+            <button class="icon-btn print" onclick="triggerPrint()">🖨️ Print</button>
         </div>
     </div>
 
@@ -518,8 +292,6 @@
     </div>
 
     <div id="calendar-container"></div>
-
-    <!-- Print view (hidden on screen, shown when printing) -->
     <div class="print-view" id="print-view"></div>
 
     <!-- Modal -->
@@ -532,6 +304,12 @@
             <div class="add-task-form">
                 <input type="text" id="new-task-name" placeholder="Add a new task...">
                 <input type="date" id="new-task-date">
+                <select id="new-task-recurrence">
+                    <option value="none">🔁 No repeat</option>
+                    <option value="daily">🔁 Repeat daily</option>
+                    <option value="weekly">🔁 Repeat weekly</option>
+                    <option value="monthly">🔁 Repeat monthly</option>
+                </select>
                 <button onclick="addTask()">+ Add Task</button>
             </div>
             <div id="modal-body"></div>
@@ -550,7 +328,8 @@
                 id: {{ task['id'] }},
                 task: {{ task['task'] | tojson }},
                 due_date: "{{ task['due_date'] if task['due_date'] else '' }}",
-                done: {{ 'true' if task['done'] else 'false' }}
+                done: {{ 'true' if task['done'] else 'false' }},
+                recurrence: "{{ task['recurrence'] if task['recurrence'] else 'none' }}"
             },
             {% endfor %}
         ];
@@ -558,6 +337,7 @@
         let currentView = 'week';
         let currentDate = new Date();
         let selectedDate = '';
+        let dragTaskId = null;
 
         const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         const MONTH_NAMES = ['January','February','March','April','May','June',
@@ -565,6 +345,7 @@
 
         function getTaskClass(task) {
             if (task.done) return 'done';
+            if (!task.due_date) return 'ontrack';
             if (task.due_date < today) return 'overdue';
             if (task.due_date <= tomorrow) return 'warning';
             return 'ontrack';
@@ -574,8 +355,8 @@
             return allTasks.filter(t => t.due_date === dateStr);
         }
 
-        function formatDate(date) {
-            return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+        function formatDate(d) {
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         }
 
         function friendlyDate(dateStr) {
@@ -583,7 +364,21 @@
             return new Date(y, m-1, d).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
         }
 
-        // ---- View switching ----
+        // ---- Dark mode ----
+        function toggleDark() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateDarkBtn();
+        }
+        function updateDarkBtn() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+        }
+        updateDarkBtn();
+
+        // ---- View / Navigation ----
         function switchView(view) {
             currentView = view;
             document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
@@ -604,33 +399,86 @@
             else renderYear();
         }
 
-        // ---- Screen render functions ----
+        // ---- Drag and Drop ----
+        function onDragStart(e, taskId) {
+            dragTaskId = taskId;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', taskId);
+        }
+
+        function onDragOver(e, el) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            document.querySelectorAll('.drag-over').forEach(d => d.classList.remove('drag-over'));
+            el.classList.add('drag-over');
+        }
+
+        function onDragLeave(el) {
+            el.classList.remove('drag-over');
+        }
+
+        async function onDrop(e, dateStr, el) {
+            e.preventDefault();
+            el.classList.remove('drag-over');
+            if (!dragTaskId) return;
+            const taskId = dragTaskId;
+            dragTaskId = null;
+            const task = allTasks.find(t => t.id === taskId);
+            if (!task || task.due_date === dateStr) return;
+
+            await fetch(`/api/task/edit/${taskId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task: task.task, due_date: dateStr, recurrence: task.recurrence })
+            });
+            task.due_date = dateStr;
+            render();
+        }
+
+        function pillHtml(task) {
+            const cls = getTaskClass(task);
+            const recurClass = task.recurrence && task.recurrence !== 'none' ? ' recurring' : '';
+            return `<span class="task-pill ${cls}${recurClass}"
+                draggable="true"
+                ondragstart="onDragStart(event, ${task.id})"
+                title="${task.task}${task.recurrence !== 'none' ? ' 🔁 ' + task.recurrence : ''}"
+                onclick="event.stopPropagation()">
+                ${task.task}
+            </span>`;
+        }
+
+        function dayDropHandlers(dateStr) {
+            return `ondragover="onDragOver(event, this)"
+                    ondragleave="onDragLeave(this)"
+                    ondrop="onDrop(event, '${dateStr}', this)"`;
+        }
+
+        // ---- WEEK ----
         function renderWeek() {
             const start = new Date(currentDate);
             start.setDate(start.getDate() - start.getDay());
-            const end = new Date(start);
-            end.setDate(end.getDate() + 6);
+            const end = new Date(start); end.setDate(end.getDate() + 6);
             document.getElementById('nav-title').textContent =
                 `${MONTH_NAMES[start.getMonth()]} ${start.getDate()} – ${MONTH_NAMES[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
 
             let html = '<div class="week-grid">';
             for (let i = 0; i < 7; i++) {
-                const d = new Date(start);
-                d.setDate(d.getDate() + i);
+                const d = new Date(start); d.setDate(d.getDate() + i);
                 const dateStr = formatDate(d);
                 const dayTasks = getTasksForDate(dateStr);
-                html += `<div class="week-day ${dateStr === today ? 'today' : ''}" onclick="openModal('${dateStr}')">
+                html += `<div class="week-day ${dateStr === today ? 'today' : ''}"
+                    onclick="openModal('${dateStr}')"
+                    ${dayDropHandlers(dateStr)}>
                     <div class="week-day-header">${DAY_NAMES[d.getDay()]}</div>
-                    <div class="week-day-number">${d.getDate()}</div>`;
-                dayTasks.forEach(t => {
-                    html += `<span class="task-pill ${getTaskClass(t)}">${t.task}</span>`;
-                });
-                html += '</div>';
+                    <div class="week-day-number">${d.getDate()}</div>
+                    ${dayTasks.map(t => pillHtml(t)).join('')}
+                </div>`;
             }
             html += '</div>';
             document.getElementById('calendar-container').innerHTML = html;
         }
 
+        // ---- MONTH ----
         function renderMonth() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
@@ -649,12 +497,12 @@
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                 const dayTasks = getTasksForDate(dateStr);
-                html += `<div class="month-day ${dateStr === today ? 'today' : ''}" onclick="openModal('${dateStr}')">
-                    <div class="month-day-number">${d}</div>`;
-                dayTasks.forEach(t => {
-                    html += `<span class="task-pill ${getTaskClass(t)}">${t.task}</span>`;
-                });
-                html += '</div>';
+                html += `<div class="month-day ${dateStr === today ? 'today' : ''}"
+                    onclick="openModal('${dateStr}')"
+                    ${dayDropHandlers(dateStr)}>
+                    <div class="month-day-number">${d}</div>
+                    ${dayTasks.map(t => pillHtml(t)).join('')}
+                </div>`;
             }
             const total = Math.ceil((firstDay + daysInMonth) / 7) * 7;
             for (let d = 1; d <= total - firstDay - daysInMonth; d++) {
@@ -664,6 +512,7 @@
             document.getElementById('calendar-container').innerHTML = html;
         }
 
+        // ---- YEAR ----
         function renderYear() {
             const year = currentDate.getFullYear();
             document.getElementById('nav-title').textContent = `${year}`;
@@ -681,7 +530,8 @@
                     const dayTasks = getTasksForDate(dateStr);
                     let dots = dayTasks.length > 0 ?
                         '<div class="dots-row">' + dayTasks.map(t => `<span class="dot ${getTaskClass(t)}"></span>`).join('') + '</div>' : '';
-                    html += `<div class="year-day ${dateStr === today ? 'today' : ''}" onclick="openModal('${dateStr}')">${d}${dots}</div>`;
+                    html += `<div class="year-day ${dateStr === today ? 'today' : ''}"
+                        onclick="openModal('${dateStr}')">${d}${dots}</div>`;
                 }
                 html += '</div></div>';
             }
@@ -689,16 +539,10 @@
             document.getElementById('calendar-container').innerHTML = html;
         }
 
-        // ---- PRINT functions ----
+        // ---- PRINT ----
         function triggerPrint() {
-            if (currentView === 'week') {
-                // Switch to month for printing
-                buildPrintMonth(currentDate.getFullYear(), currentDate.getMonth());
-            } else if (currentView === 'month') {
-                buildPrintMonth(currentDate.getFullYear(), currentDate.getMonth());
-            } else {
-                buildPrintYear(currentDate.getFullYear());
-            }
+            if (currentView === 'year') buildPrintYear(currentDate.getFullYear());
+            else buildPrintMonth(currentDate.getFullYear(), currentDate.getMonth());
             window.print();
         }
 
@@ -708,60 +552,45 @@
             const daysInPrev = new Date(year, month, 0).getDate();
             const printDate = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
 
-            let html = `
-                <div class="print-header">
-                    <div>
-                        <div class="print-title">📅 ${calendarName}</div>
-                        <div class="print-subtitle">${MONTH_NAMES[month]} ${year}</div>
-                    </div>
-                    <div class="print-subtitle">Printed on ${printDate}</div>
-                </div>
-                <div class="print-month-grid">`;
+            let html = `<div class="print-header">
+                <div><div class="print-title">📅 ${calendarName}</div>
+                <div class="print-subtitle">${MONTH_NAMES[month]} ${year}</div></div>
+                <div class="print-subtitle">Printed ${printDate}</div>
+            </div><div class="print-month-grid">`;
 
             DAY_NAMES.forEach(d => { html += `<div class="print-day-name">${d}</div>`; });
-
             for (let i = firstDay - 1; i >= 0; i--) {
                 html += `<div class="print-day other-month"><div class="print-day-number">${daysInPrev - i}</div></div>`;
             }
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                const isToday = dateStr === today;
                 const dayTasks = getTasksForDate(dateStr);
-                html += `<div class="print-day ${isToday ? 'today-print' : ''}">
-                    <div class="print-day-number">${d}</div>`;
-                dayTasks.forEach(t => {
-                    html += `<span class="print-task ${getTaskClass(t)}">${t.task}</span>`;
-                });
-                html += '</div>';
+                html += `<div class="print-day ${dateStr === today ? 'today-print' : ''}">
+                    <div class="print-day-number">${d}</div>
+                    ${dayTasks.map(t => `<span class="print-task ${getTaskClass(t)}">${t.task}${t.recurrence !== 'none' ? ' 🔁' : ''}</span>`).join('')}
+                </div>`;
             }
             const total = Math.ceil((firstDay + daysInMonth) / 7) * 7;
             for (let d = 1; d <= total - firstDay - daysInMonth; d++) {
                 html += `<div class="print-day other-month"><div class="print-day-number">${d}</div></div>`;
             }
-
-            html += `</div>
-                <div class="print-legend">
-                    <div class="legend-item"><div class="legend-dot overdue"></div> Overdue</div>
-                    <div class="legend-item"><div class="legend-dot warning"></div> Due Soon</div>
-                    <div class="legend-item"><div class="legend-dot ontrack"></div> On Track</div>
-                    <div class="legend-item"><div class="legend-dot done"></div> Done</div>
-                </div>`;
-
+            html += `</div><div class="print-legend">
+                <div class="legend-item"><div class="legend-dot overdue"></div> Overdue</div>
+                <div class="legend-item"><div class="legend-dot warning"></div> Due Soon</div>
+                <div class="legend-item"><div class="legend-dot ontrack"></div> On Track</div>
+                <div class="legend-item"><div class="legend-dot done"></div> Done</div>
+                <div class="legend-item">🔁 Recurring</div>
+            </div>`;
             document.getElementById('print-view').innerHTML = html;
         }
 
         function buildPrintYear(year) {
             const printDate = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
-
-            let html = `
-                <div class="print-header">
-                    <div>
-                        <div class="print-title">📅 ${calendarName}</div>
-                        <div class="print-subtitle">Year ${year}</div>
-                    </div>
-                    <div class="print-subtitle">Printed on ${printDate}</div>
-                </div>
-                <div class="print-year-grid">`;
+            let html = `<div class="print-header">
+                <div><div class="print-title">📅 ${calendarName}</div>
+                <div class="print-subtitle">Year ${year}</div></div>
+                <div class="print-subtitle">Printed ${printDate}</div>
+            </div><div class="print-year-grid">`;
 
             for (let m = 0; m < 12; m++) {
                 const firstDay = new Date(year, m, 1).getDay();
@@ -773,27 +602,21 @@
                 for (let i = 0; i < firstDay; i++) html += `<div class="print-year-day"></div>`;
                 for (let d = 1; d <= daysInMonth; d++) {
                     const dateStr = `${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                    const isToday = dateStr === today;
                     const dayTasks = getTasksForDate(dateStr);
-                    let dots = '';
-                    if (dayTasks.length > 0) {
-                        dots = '<div class="print-year-dots">' +
-                            dayTasks.map(t => `<span class="print-year-dot ${getTaskClass(t)}"></span>`).join('') +
-                            '</div>';
-                    }
-                    html += `<div class="print-year-day ${isToday ? 'today-print' : ''} ${dayTasks.length > 0 ? 'has-tasks' : ''}">${d}${dots}</div>`;
+                    let dots = dayTasks.length > 0 ?
+                        '<div class="print-year-dots">' +
+                        dayTasks.map(t => `<span class="print-year-dot ${getTaskClass(t)}"></span>`).join('') +
+                        '</div>' : '';
+                    html += `<div class="print-year-day ${dateStr === today ? 'today-print' : ''} ${dayTasks.length > 0 ? 'has-tasks' : ''}">${d}${dots}</div>`;
                 }
                 html += '</div></div>';
             }
-
-            html += `</div>
-                <div class="print-legend">
-                    <div class="legend-item"><div class="legend-dot overdue"></div> Overdue</div>
-                    <div class="legend-item"><div class="legend-dot warning"></div> Due Soon</div>
-                    <div class="legend-item"><div class="legend-dot ontrack"></div> On Track</div>
-                    <div class="legend-item"><div class="legend-dot done"></div> Done</div>
-                </div>`;
-
+            html += `</div><div class="print-legend">
+                <div class="legend-item"><div class="legend-dot overdue"></div> Overdue</div>
+                <div class="legend-item"><div class="legend-dot warning"></div> Due Soon</div>
+                <div class="legend-item"><div class="legend-dot ontrack"></div> On Track</div>
+                <div class="legend-item"><div class="legend-dot done"></div> Done</div>
+            </div>`;
             document.getElementById('print-view').innerHTML = html;
         }
 
@@ -803,6 +626,7 @@
             document.getElementById('modal-title').textContent = '📅 ' + friendlyDate(dateStr);
             document.getElementById('new-task-name').value = '';
             document.getElementById('new-task-date').value = dateStr;
+            document.getElementById('new-task-recurrence').value = 'none';
             document.getElementById('modal-overlay').classList.add('open');
             renderModalTasks();
         }
@@ -815,6 +639,11 @@
             if (e.target === document.getElementById('modal-overlay')) closeModal();
         }
 
+        function recurLabel(r) {
+            const map = { daily: '🔁 Repeats daily', weekly: '🔁 Repeats weekly', monthly: '🔁 Repeats monthly' };
+            return map[r] || '';
+        }
+
         function renderModalTasks() {
             const dayTasks = getTasksForDate(selectedDate);
             const body = document.getElementById('modal-body');
@@ -824,11 +653,13 @@
             }
             body.innerHTML = dayTasks.map(task => {
                 const cls = getTaskClass(task);
-                const statusLabel = { overdue:'⚠️ Overdue', warning:'⚡ Due Soon', ontrack:'✅ On Track', done:'✔️ Done' }[cls];
                 return `
                 <div class="modal-task ${cls}" id="modal-task-${task.id}">
                     <div class="modal-task-row">
-                        <span class="modal-task-name ${task.done ? 'done-text' : ''}">${task.task}</span>
+                        <div class="modal-task-info">
+                            <span class="modal-task-name ${task.done ? 'done-text' : ''}">${task.task}</span>
+                            ${task.recurrence && task.recurrence !== 'none' ? `<span class="modal-task-recur">${recurLabel(task.recurrence)}</span>` : ''}
+                        </div>
                         <div class="modal-task-actions">
                             <button class="btn-small btn-toggle ${task.done ? 'undo' : ''}"
                                 onclick="toggleTask(${task.id})">${task.done ? 'Undo' : '✔'}</button>
@@ -839,6 +670,12 @@
                     <div class="edit-form" id="edit-form-${task.id}">
                         <input type="text" id="edit-name-${task.id}" value="${task.task}">
                         <input type="date" id="edit-date-${task.id}" value="${task.due_date}">
+                        <select id="edit-recur-${task.id}">
+                            <option value="none" ${task.recurrence === 'none' ? 'selected' : ''}>🔁 No repeat</option>
+                            <option value="daily" ${task.recurrence === 'daily' ? 'selected' : ''}>🔁 Repeat daily</option>
+                            <option value="weekly" ${task.recurrence === 'weekly' ? 'selected' : ''}>🔁 Repeat weekly</option>
+                            <option value="monthly" ${task.recurrence === 'monthly' ? 'selected' : ''}>🔁 Repeat monthly</option>
+                        </select>
                         <div class="edit-form-btns">
                             <button class="btn-small btn-save" onclick="saveEdit(${task.id})">💾 Save</button>
                             <button class="btn-small btn-cancel" onclick="toggleEditForm(${task.id})">Cancel</button>
@@ -852,17 +689,19 @@
             document.getElementById(`edit-form-${taskId}`).classList.toggle('open');
         }
 
+        // ---- Task CRUD ----
         async function addTask() {
             const name = document.getElementById('new-task-name').value.trim();
             const due_date = document.getElementById('new-task-date').value;
+            const recurrence = document.getElementById('new-task-recurrence').value;
             if (!name) return;
             const res = await fetch('/api/task/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task: name, due_date, calendar_id: calendarId })
+                body: JSON.stringify({ task: name, due_date, calendar_id: calendarId, recurrence })
             });
             const newTask = await res.json();
-            allTasks.push({ id: newTask.id, task: newTask.task, due_date: newTask.due_date, done: false });
+            allTasks.push({ id: newTask.id, task: newTask.task, due_date: newTask.due_date, done: false, recurrence: newTask.recurrence || 'none' });
             document.getElementById('new-task-name').value = '';
             renderModalTasks();
             render();
@@ -873,6 +712,16 @@
             const data = await res.json();
             const task = allTasks.find(t => t.id === taskId);
             if (task) task.done = data.done === 1;
+            // If a new recurring task was spawned, add it to allTasks
+            if (data.new_task) {
+                allTasks.push({
+                    id: data.new_task.id,
+                    task: data.new_task.task,
+                    due_date: data.new_task.due_date,
+                    done: false,
+                    recurrence: data.new_task.recurrence || 'none'
+                });
+            }
             renderModalTasks();
             render();
         }
@@ -880,14 +729,15 @@
         async function saveEdit(taskId) {
             const name = document.getElementById(`edit-name-${taskId}`).value.trim();
             const due_date = document.getElementById(`edit-date-${taskId}`).value;
+            const recurrence = document.getElementById(`edit-recur-${taskId}`).value;
             if (!name) return;
             await fetch(`/api/task/edit/${taskId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task: name, due_date })
+                body: JSON.stringify({ task: name, due_date, recurrence })
             });
             const task = allTasks.find(t => t.id === taskId);
-            if (task) { task.task = name; task.due_date = due_date; }
+            if (task) { task.task = name; task.due_date = due_date; task.recurrence = recurrence; }
             if (due_date !== selectedDate) selectedDate = due_date;
             renderModalTasks();
             render();
