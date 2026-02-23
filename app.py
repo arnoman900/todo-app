@@ -21,14 +21,13 @@ def get_db():
     database_url = os.environ.get("DATABASE_URL")
     if database_url:
         conn = psycopg2.connect(database_url)
-        return conn, True   # True = is postgres
+        return conn, True
     else:
         conn = sqlite3.connect("todo.db")
         conn.row_factory = sqlite3.Row
-        return conn, False  # False = is sqlite
+        return conn, False
 
 def query(cur, is_postgres, sql, params=()):
-    # PostgreSQL uses %s, SQLite uses ?
     if not is_postgres:
         sql = sql.replace("%s", "?")
     cur.execute(sql, params)
@@ -45,12 +44,22 @@ def init_db():
             )
         """)
         cur.execute("""
+            CREATE TABLE IF NOT EXISTS folders (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                user_id INTEGER NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        """)
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS tasks (
                 id SERIAL PRIMARY KEY,
                 task TEXT NOT NULL,
                 user_id INTEGER NOT NULL,
+                folder_id INTEGER NOT NULL,
                 done INTEGER DEFAULT 0,
-                FOREIGN KEY (user_id) REFERENCES users (id)
+                FOREIGN KEY (user_id) REFERENCES users (id),
+                FOREIGN KEY (folder_id) REFERENCES folders (id)
             )
         """)
     else:
@@ -62,19 +71,29 @@ def init_db():
             )
         """)
         cur.execute("""
+            CREATE TABLE IF NOT EXISTS folders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                user_id INTEGER NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        """)
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS tasks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 task TEXT NOT NULL,
                 user_id INTEGER NOT NULL,
+                folder_id INTEGER NOT NULL,
                 done INTEGER DEFAULT 0,
-                FOREIGN KEY (user_id) REFERENCES users (id)
+                FOREIGN KEY (user_id) REFERENCES users (id),
+                FOREIGN KEY (folder_id) REFERENCES folders (id)
             )
         """)
     conn.commit()
     cur.close()
     conn.close()
 
-init_db()  # runs every time the app starts
+init_db()
 
 # -------------------------
 # User class for Flask-Login
@@ -112,11 +131,113 @@ def home():
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     else:
         cur = conn.cursor()
-    query(cur, is_postgres, "SELECT * FROM tasks WHERE user_id = %s", (current_user.id,))
+    query(cur, is_postgres, "SELECT * FROM folders WHERE user_id = %s", (current_user.id,))
+    folders = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template("index.html", folders=folders)
+
+@app.route("/folder/create", methods=["POST"])
+@login_required
+def create_folder():
+    name = request.form.get("name")
+    if name:
+        conn, is_postgres = get_db()
+        cur = conn.cursor()
+        query(cur, is_postgres, "INSERT INTO folders (name, user_id) VALUES (%s, %s)", (name, current_user.id))
+        conn.commit()
+        cur.close()
+        conn.close()
+    return redirect(url_for("home"))
+
+@app.route("/folder/<int:folder_id>")
+@login_required
+def folder(folder_id):
+    conn, is_postgres = get_db()
+    if is_postgres:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    else:
+        cur = conn.cursor()
+    # Get the folder (make sure it belongs to this user)
+    query(cur, is_postgres, "SELECT * FROM folders WHERE id = %s AND user_id = %s", (folder_id, current_user.id))
+    folder = cur.fetchone()
+    if not folder:
+        return redirect(url_for("home"))
+    # Get tasks in this folder
+    query(cur, is_postgres, "SELECT * FROM tasks WHERE folder_id = %s AND user_id = %s", (folder_id, current_user.id))
     todos = cur.fetchall()
     cur.close()
     conn.close()
-    return render_template("index.html", todos=todos)
+    return render_template("folder.html", folder=folder, todos=todos)
+
+@app.route("/folder/delete/<int:folder_id>")
+@login_required
+def delete_folder(folder_id):
+    conn, is_postgres = get_db()
+    cur = conn.cursor()
+    # Delete all tasks in the folder first
+    query(cur, is_postgres, "DELETE FROM tasks WHERE folder_id = %s AND user_id = %s", (folder_id, current_user.id))
+    # Then delete the folder
+    query(cur, is_postgres, "DELETE FROM folders WHERE id = %s AND user_id = %s", (folder_id, current_user.id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return redirect(url_for("home"))
+
+@app.route("/add/<int:folder_id>", methods=["POST"])
+@login_required
+def add(folder_id):
+    task = request.form.get("task")
+    if task:
+        conn, is_postgres = get_db()
+        cur = conn.cursor()
+        query(cur, is_postgres, "INSERT INTO tasks (task, user_id, folder_id) VALUES (%s, %s, %s)", (task, current_user.id, folder_id))
+        conn.commit()
+        cur.close()
+        conn.close()
+    return redirect(url_for("folder", folder_id=folder_id))
+
+@app.route("/delete/<int:id>")
+@login_required
+def delete(id):
+    conn, is_postgres = get_db()
+    if is_postgres:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    else:
+        cur = conn.cursor()
+    # Get folder_id before deleting so we can redirect back
+    query(cur, is_postgres, "SELECT * FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
+    task = cur.fetchone()
+    folder_id = task["folder_id"] if task else None
+    query(cur, is_postgres, "DELETE FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    if folder_id:
+        return redirect(url_for("folder", folder_id=folder_id))
+    return redirect(url_for("home"))
+
+@app.route("/toggle/<int:id>")
+@login_required
+def toggle(id):
+    conn, is_postgres = get_db()
+    if is_postgres:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    else:
+        cur = conn.cursor()
+    query(cur, is_postgres, "SELECT * FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
+    task = cur.fetchone()
+    if task:
+        new_status = 0 if task["done"] else 1
+        folder_id = task["folder_id"]
+        query(cur, is_postgres, "UPDATE tasks SET done = %s WHERE id = %s", (new_status, id))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return redirect(url_for("folder", folder_id=folder_id))
+    cur.close()
+    conn.close()
+    return redirect(url_for("home"))
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -162,48 +283,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("login"))
-
-@app.route("/add", methods=["POST"])
-@login_required
-def add():
-    task = request.form.get("task")
-    if task:
-        conn, is_postgres = get_db()
-        cur = conn.cursor()
-        query(cur, is_postgres, "INSERT INTO tasks (task, user_id) VALUES (%s, %s)", (task, current_user.id))
-        conn.commit()
-        cur.close()
-        conn.close()
-    return redirect(url_for("home"))
-
-@app.route("/delete/<int:id>")
-@login_required
-def delete(id):
-    conn, is_postgres = get_db()
-    cur = conn.cursor()
-    query(cur, is_postgres, "DELETE FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect(url_for("home"))
-
-@app.route("/toggle/<int:id>")
-@login_required
-def toggle(id):
-    conn, is_postgres = get_db()
-    if is_postgres:
-        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    else:
-        cur = conn.cursor()
-    query(cur, is_postgres, "SELECT * FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
-    task = cur.fetchone()
-    if task:
-        new_status = 0 if task["done"] else 1
-        query(cur, is_postgres, "UPDATE tasks SET done = %s WHERE id = %s", (new_status, id))
-        conn.commit()
-    cur.close()
-    conn.close()
-    return redirect(url_for("home"))
 
 if __name__ == "__main__":
     app.run(debug=False)

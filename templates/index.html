@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My To-Do List</title>
+    <title>My Folders</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -29,69 +29,52 @@
         ul { list-style: none; padding: 0; }
         li {
             background: white;
-            padding: 12px;
+            padding: 15px;
             margin: 8px 0;
             border-radius: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .done-text {
-            text-decoration: line-through;
-            color: gray;
+        li a.folder-link {
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
         }
-        .task-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        a { color: red; text-decoration: none; }
+        li a.folder-link:hover { color: #4CAF50; }
+        a.delete { color: red; text-decoration: none; font-size: 14px; }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .logout {
-            color: gray;
-            font-size: 14px;
-        }
-        input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
+        .logout { color: gray; font-size: 14px; text-decoration: none; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>📝 My To-Do List</h1>
+        <h1>📁 My Folders</h1>
         <a class="logout" href="/logout">Logout ({{ current_user.username }})</a>
     </div>
 
-    <form action="/add" method="POST">
-        <input type="text" name="task" placeholder="Enter a task..." required>
-        <button type="submit">Add</button>
+    <form action="/folder/create" method="POST">
+        <input type="text" name="name" placeholder="New folder name..." required>
+        <button type="submit">Create</button>
     </form>
 
     <ul>
-        {% for todo in todos %}
+        {% for folder in folders %}
         <li>
-            <div class="task-left">
-                <a href="/toggle/{{ todo['id'] }}">
-                    <input type="checkbox" onclick="window.location='/toggle/{{ todo['id'] }}'" 
-                    {{ 'checked' if todo['done'] else '' }}>
-                </a>
-                <span class="{{ 'done-text' if todo['done'] else '' }}">
-                    {{ todo["task"] }}
-                </span>
-            </div>
-            <a href="/delete/{{ todo['id'] }}">❌</a>
+            <a class="folder-link" href="/folder/{{ folder['id'] }}">📂 {{ folder['name'] }}</a>
+            <a class="delete" href="/folder/delete/{{ folder['id'] }}"
+               onclick="return confirm('Delete this folder and all its tasks?')">🗑️</a>
         </li>
         {% endfor %}
     </ul>
 
-    {% if todos|length == 0 %}
-        <p style="color: gray;">No tasks yet. Add one above!</p>
+    {% if folders|length == 0 %}
+        <p style="color: gray;">No folders yet. Create one above!</p>
     {% endif %}
 </body>
 </html>
