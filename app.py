@@ -54,20 +54,19 @@ def init_db():
         cur.execute("""CREATE TABLE IF NOT EXISTS task_completions (
             id SERIAL PRIMARY KEY, task_id INTEGER NOT NULL, completed_date TEXT NOT NULL,
             UNIQUE(task_id, completed_date))""")
+        conn.commit()  # commit tables before altering
+
         for col, definition in [
-            ("folder_id", "INTEGER"), ("due_date", "TEXT"),
-            ("recurrence", "TEXT DEFAULT 'none'"),
-            ("due_time", "TEXT DEFAULT ''"),
+            ("folder_id",    "INTEGER"),
+            ("due_date",     "TEXT"),
+            ("recurrence",   "TEXT DEFAULT 'none'"),
+            ("due_time",     "TEXT DEFAULT ''"),
             ("due_time_end", "TEXT DEFAULT ''"),
         ]:
-            try:
-                cur.execute(f"ALTER TABLE tasks ADD COLUMN {col} {definition}")
-            except:
-                conn.rollback()
-        try:
-            cur.execute("ALTER TABLE users ADD COLUMN email TEXT")
-        except:
-            conn.rollback()
+            cur.execute(f"ALTER TABLE tasks ADD COLUMN IF NOT EXISTS {col} {definition}")
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT")
+        conn.commit()
+
     else:
         cur.execute("""CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL)""")
@@ -80,10 +79,13 @@ def init_db():
         cur.execute("""CREATE TABLE IF NOT EXISTS task_completions (
             id INTEGER PRIMARY KEY AUTOINCREMENT, task_id INTEGER NOT NULL, completed_date TEXT NOT NULL,
             UNIQUE(task_id, completed_date))""")
+        conn.commit()  # commit tables before altering
+
         for col, definition in [
-            ("folder_id", "INTEGER"), ("due_date", "TEXT"),
-            ("recurrence", "TEXT DEFAULT 'none'"),
-            ("due_time", "TEXT DEFAULT ''"),
+            ("folder_id",    "INTEGER"),
+            ("due_date",     "TEXT"),
+            ("recurrence",   "TEXT DEFAULT 'none'"),
+            ("due_time",     "TEXT DEFAULT ''"),
             ("due_time_end", "TEXT DEFAULT ''"),
         ]:
             try:
@@ -94,7 +96,8 @@ def init_db():
             cur.execute("ALTER TABLE users ADD COLUMN email TEXT")
         except:
             pass
-    conn.commit()
+        conn.commit()
+
     cur.close()
     conn.close()
 
