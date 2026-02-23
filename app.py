@@ -60,11 +60,10 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
         """)
-        # Add folder_id column if it doesn't exist yet
         try:
             cur.execute("ALTER TABLE tasks ADD COLUMN folder_id INTEGER")
         except:
-            conn.rollback()  # column already exists, ignore
+            conn.rollback()
     else:
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -90,11 +89,10 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
         """)
-        # Add folder_id column if it doesn't exist yet
         try:
             cur.execute("ALTER TABLE tasks ADD COLUMN folder_id INTEGER")
         except:
-            pass  # column already exists, ignore
+            pass
 
     conn.commit()
     cur.close()
@@ -140,9 +138,19 @@ def home():
         cur = conn.cursor()
     query(cur, is_postgres, "SELECT * FROM folders WHERE user_id = %s", (current_user.id,))
     folders = cur.fetchall()
+
+    # Count tasks for each folder
+    folder_stats = {}
+    for folder in folders:
+        query(cur, is_postgres, "SELECT COUNT(*) as total FROM tasks WHERE folder_id = %s AND user_id = %s", (folder["id"], current_user.id))
+        total = cur.fetchone()["total"]
+        query(cur, is_postgres, "SELECT COUNT(*) as done FROM tasks WHERE folder_id = %s AND user_id = %s AND done = 1", (folder["id"], current_user.id))
+        done = cur.fetchone()["done"]
+        folder_stats[folder["id"]] = {"total": total, "done": done, "due": total - done}
+
     cur.close()
     conn.close()
-    return render_template("index.html", folders=folders)
+    return render_template("index.html", folders=folders, folder_stats=folder_stats)
 
 @app.route("/folder/create", methods=["POST"])
 @login_required
