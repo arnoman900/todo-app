@@ -2,40 +2,84 @@
 <html>
 <head>
     <title>{{ calendar['name'] }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'DM Sans', sans-serif;
             max-width: 950px;
             margin: 30px auto;
-            background-color: #f4f4f4;
+            background-color: #f0f2f5;
             padding: 0 20px;
         }
-        h1 { color: #333; margin: 0; }
+        h1 { color: #1a1d23; margin: 0; }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-        a.back { color: gray; text-decoration: none; font-size: 14px; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        a.back {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #e4e7ec;
+            border-radius: 8px;
+        }
+        a.back:hover { color: #3b82f6; border-color: #3b82f6; }
 
+        .header-right { display: flex; gap: 10px; align-items: center; }
+
+        /* Print button */
+        .print-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e4e7ec;
+            border-radius: 8px;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .print-btn:hover { background: #1a1d23; color: white; border-color: #1a1d23; }
+
+        /* View switcher */
         .view-switcher {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             margin-bottom: 20px;
+            background: white;
+            padding: 6px;
+            border-radius: 10px;
+            border: 1px solid #e4e7ec;
+            width: fit-content;
         }
         .view-btn {
-            padding: 8px 20px;
+            padding: 7px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 7px;
             cursor: pointer;
             font-size: 14px;
-            background-color: #ddd;
-            color: #333;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            background: transparent;
+            color: #6b7280;
+            transition: all 0.2s;
         }
-        .view-btn.active { background-color: #3498db; color: white; }
+        .view-btn.active { background: #3b82f6; color: white; }
+        .view-btn:hover:not(.active) { background: #f3f4f6; color: #1a1d23; }
 
+        /* Navigation */
         .nav {
             display: flex;
             justify-content: space-between;
@@ -44,14 +88,18 @@
         }
         .nav button {
             padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            background-color: #3498db;
-            color: white;
+            border: 1px solid #e4e7ec;
+            border-radius: 8px;
+            background: white;
+            color: #374151;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
         }
-        .nav-title { font-size: 18px; font-weight: bold; color: #333; }
+        .nav button:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .nav-title { font-size: 18px; font-weight: 700; color: #1a1d23; }
 
         /* Week */
         .week-grid {
@@ -61,16 +109,17 @@
         }
         .week-day {
             background: white;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 10px;
             min-height: 130px;
             cursor: pointer;
-            transition: box-shadow 0.2s;
+            transition: box-shadow 0.2s, transform 0.2s;
+            border: 1px solid #e4e7ec;
         }
-        .week-day:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
-        .week-day.today { border: 2px solid #3498db; }
-        .week-day-header { font-size: 11px; color: gray; margin-bottom: 3px; }
-        .week-day-number { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 6px; }
+        .week-day:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
+        .week-day.today { border: 2px solid #3b82f6; }
+        .week-day-header { font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+        .week-day-number { font-size: 20px; font-weight: 700; color: #1a1d23; margin-bottom: 8px; font-family: 'DM Mono', monospace; }
 
         /* Month */
         .month-grid {
@@ -80,58 +129,62 @@
         }
         .month-day-name {
             text-align: center;
-            font-size: 13px;
-            font-weight: bold;
-            color: gray;
-            padding: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #9ca3af;
+            padding: 8px 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .month-day {
             background: white;
-            border-radius: 6px;
-            padding: 6px;
-            min-height: 85px;
+            border-radius: 8px;
+            padding: 8px;
+            min-height: 90px;
             cursor: pointer;
             transition: box-shadow 0.2s;
+            border: 1px solid #e4e7ec;
         }
-        .month-day:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-        .month-day.other-month { background: #eee; opacity: 0.5; pointer-events: none; }
-        .month-day.today { border: 2px solid #3498db; }
-        .month-day-number { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 4px; }
+        .month-day:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .month-day.other-month { background: #f9fafb; opacity: 0.5; pointer-events: none; }
+        .month-day.today { border: 2px solid #3b82f6; }
+        .month-day-number { font-size: 13px; font-weight: 700; color: #1a1d23; margin-bottom: 4px; }
 
         /* Year */
-        .year-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-        .year-month { background: white; border-radius: 8px; padding: 10px; }
-        .year-month-title { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 8px; text-align: center; }
+        .year-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .year-month { background: white; border-radius: 10px; padding: 12px; border: 1px solid #e4e7ec; }
+        .year-month-title { font-size: 13px; font-weight: 700; color: #1a1d23; margin-bottom: 8px; text-align: center; }
         .year-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-        .year-day-name { font-size: 9px; color: gray; text-align: center; }
-        .year-day { font-size: 10px; text-align: center; padding: 2px; border-radius: 3px; cursor: pointer; }
-        .year-day:hover { background-color: #e0f0ff; }
-        .year-day.today { background-color: #3498db; color: white; border-radius: 50%; }
+        .year-day-name { font-size: 9px; color: #9ca3af; text-align: center; font-weight: 600; }
+        .year-day { font-size: 10px; text-align: center; padding: 3px 2px; border-radius: 4px; cursor: pointer; color: #374151; }
+        .year-day:hover { background: #eff6ff; }
+        .year-day.today { background: #3b82f6; color: white; border-radius: 50%; }
 
         /* Pills */
         .task-pill {
             font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 10px;
+            padding: 2px 7px;
+            border-radius: 99px;
             margin: 2px 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             color: white;
             display: block;
+            font-weight: 500;
         }
-        .task-pill.overdue { background-color: #e74c3c; }
-        .task-pill.warning { background-color: #f1c40f; color: #333; }
-        .task-pill.ontrack { background-color: #4CAF50; }
-        .task-pill.done { background-color: #aaa; text-decoration: line-through; }
+        .task-pill.overdue { background-color: #ef4444; }
+        .task-pill.warning { background-color: #eab308; color: #1a1d23; }
+        .task-pill.ontrack { background-color: #22c55e; }
+        .task-pill.done { background-color: #9ca3af; text-decoration: line-through; }
 
         /* Dots */
         .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin: 1px; }
-        .dot.overdue { background-color: #e74c3c; }
-        .dot.warning { background-color: #f1c40f; }
-        .dot.ontrack { background-color: #4CAF50; }
-        .dot.done { background-color: #aaa; }
-        .dots-row { display: flex; flex-wrap: wrap; justify-content: center; }
+        .dot.overdue { background-color: #ef4444; }
+        .dot.warning { background-color: #eab308; }
+        .dot.ontrack { background-color: #22c55e; }
+        .dot.done { background-color: #9ca3af; }
+        .dots-row { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
 
         /* Modal */
         .modal-overlay {
@@ -147,124 +200,309 @@
         .modal-overlay.open { display: flex; }
         .modal {
             background: white;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 25px;
-            width: 420px;
+            width: 440px;
             max-width: 95%;
             max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
-        .modal-title { font-size: 17px; font-weight: bold; color: #333; }
+        .modal-title { font-size: 16px; font-weight: 700; color: #1a1d23; }
         .modal-close {
-            background: none;
+            background: #f3f4f6;
             border: none;
-            font-size: 22px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 14px;
             cursor: pointer;
-            color: gray;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .modal-close:hover { color: red; }
+        .modal-close:hover { background: #fee2e2; color: #ef4444; }
 
-        /* Add task form inside modal */
         .add-task-form {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e4e7ec;
         }
         .add-task-form input {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: 9px 12px;
+            border: 1px solid #e4e7ec;
+            border-radius: 8px;
             font-size: 14px;
-            width: 100%;
+            font-family: 'DM Sans', sans-serif;
+            color: #1a1d23;
+            outline: none;
+            transition: border-color 0.2s;
         }
+        .add-task-form input:focus { border-color: #3b82f6; }
         .add-task-form button {
-            padding: 8px;
-            background-color: #4CAF50;
+            padding: 9px;
+            background: #22c55e;
             color: white;
             border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        /* Task items in modal */
-        .modal-task {
-            padding: 10px 12px;
             border-radius: 8px;
-            margin-bottom: 8px;
-            border-left: 4px solid #ccc;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        .modal-task.overdue { background-color: #ffe0e0; border-left-color: #e74c3c; }
-        .modal-task.warning { background-color: #fff8e0; border-left-color: #f1c40f; }
-        .modal-task.ontrack { background-color: #e8f8e8; border-left-color: #4CAF50; }
-        .modal-task.done { background-color: #f5f5f5; border-left-color: #aaa; }
+        .add-task-form button:hover { background: #16a34a; }
 
+        .modal-task {
+            padding: 11px 13px;
+            border-radius: 9px;
+            margin-bottom: 8px;
+            border-left: 4px solid #e4e7ec;
+        }
+        .modal-task.overdue { background: #fee2e2; border-left-color: #ef4444; }
+        .modal-task.warning { background: #fef9c3; border-left-color: #eab308; }
+        .modal-task.ontrack { background: #dcfce7; border-left-color: #22c55e; }
+        .modal-task.done { background: #f9fafb; border-left-color: #9ca3af; }
         .modal-task-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 8px;
         }
-        .modal-task-name {
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-            flex: 1;
-        }
-        .modal-task-name.done-text { text-decoration: line-through; color: gray; }
-        .modal-task-actions { display: flex; gap: 8px; }
+        .modal-task-name { font-size: 14px; font-weight: 600; color: #1a1d23; flex: 1; }
+        .modal-task-name.done-text { text-decoration: line-through; color: #9ca3af; }
+        .modal-task-actions { display: flex; gap: 5px; }
         .btn-small {
             padding: 4px 10px;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
             color: white;
+            transition: opacity 0.2s;
         }
-        .btn-toggle { background-color: #4CAF50; }
-        .btn-toggle.undo { background-color: #aaa; }
-        .btn-edit { background-color: #3498db; }
-        .btn-delete { background-color: #e74c3c; }
-
-        /* Inline edit form */
-        .edit-form {
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid #eee;
-        }
+        .btn-small:hover { opacity: 0.85; }
+        .btn-toggle { background: #22c55e; }
+        .btn-toggle.undo { background: #9ca3af; }
+        .btn-edit { background: #3b82f6; }
+        .btn-delete { background: #ef4444; }
+        .edit-form { display: none; flex-direction: column; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e4e7ec; }
         .edit-form.open { display: flex; }
-        .edit-form input {
-            padding: 6px 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 13px;
-            width: 100%;
-        }
+        .edit-form input { padding: 7px 10px; border: 1px solid #e4e7ec; border-radius: 6px; font-size: 13px; font-family: 'DM Sans', sans-serif; }
         .edit-form-btns { display: flex; gap: 6px; }
-        .btn-save { background-color: #3498db; }
-        .btn-cancel { background-color: gray; }
+        .btn-save { background: #3b82f6; }
+        .btn-cancel { background: #9ca3af; }
+        .modal-empty { color: #9ca3af; text-align: center; padding: 20px 0; font-size: 14px; }
 
-        .modal-empty { color: gray; text-align: center; padding: 15px 0; }
-        .loading { color: gray; text-align: center; padding: 15px 0; }
+        /* ===================== */
+        /* PRINT STYLES          */
+        /* ===================== */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 15mm 12mm;
+            }
+
+            body {
+                background: white !important;
+                margin: 0;
+                padding: 0;
+                font-family: 'DM Sans', Arial, sans-serif;
+            }
+
+            /* Hide everything except the print view */
+            .header,
+            .view-switcher,
+            .nav,
+            .modal-overlay,
+            #calendar-container { display: none !important; }
+
+            .print-view { display: block !important; }
+
+            /* Print header */
+            .print-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+                margin-bottom: 16px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #1a1d23;
+            }
+            .print-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1a1d23;
+            }
+            .print-subtitle {
+                font-size: 13px;
+                color: #6b7280;
+            }
+
+            /* Month print grid */
+            .print-month-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 3px;
+                page-break-inside: avoid;
+            }
+            .print-day-name {
+                text-align: center;
+                font-size: 10px;
+                font-weight: 700;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                padding: 4px;
+                background: #f3f4f6;
+                border-radius: 4px;
+            }
+            .print-day {
+                border: 1px solid #e4e7ec;
+                border-radius: 5px;
+                padding: 5px;
+                min-height: 70px;
+                background: white;
+            }
+            .print-day.other-month { background: #f9fafb; }
+            .print-day.today-print { border: 2px solid #3b82f6; }
+            .print-day-number {
+                font-size: 11px;
+                font-weight: 700;
+                color: #1a1d23;
+                margin-bottom: 3px;
+            }
+            .print-task {
+                font-size: 9px;
+                padding: 1px 5px;
+                border-radius: 3px;
+                margin: 1px 0;
+                display: block;
+                color: white;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .print-task.overdue { background: #ef4444; }
+            .print-task.warning { background: #eab308; color: #1a1d23; }
+            .print-task.ontrack { background: #22c55e; }
+            .print-task.done { background: #9ca3af; text-decoration: line-through; }
+
+            /* Year print */
+            .print-year-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            .print-year-month {
+                border: 1px solid #e4e7ec;
+                border-radius: 6px;
+                padding: 8px;
+            }
+            .print-year-month-title {
+                font-size: 11px;
+                font-weight: 700;
+                color: #1a1d23;
+                margin-bottom: 6px;
+                text-align: center;
+            }
+            .print-year-mini-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 1px;
+            }
+            .print-year-day-name {
+                font-size: 7px;
+                color: #9ca3af;
+                text-align: center;
+                font-weight: 700;
+            }
+            .print-year-day {
+                font-size: 7.5px;
+                text-align: center;
+                padding: 1px;
+                border-radius: 2px;
+                color: #374151;
+                position: relative;
+            }
+            .print-year-day.has-tasks { font-weight: 700; }
+            .print-year-day.today-print {
+                background: #3b82f6;
+                color: white;
+                border-radius: 50%;
+            }
+            .print-year-dots {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1px;
+                margin-top: 1px;
+            }
+            .print-year-dot {
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                display: inline-block;
+            }
+            .print-year-dot.overdue { background: #ef4444; }
+            .print-year-dot.warning { background: #eab308; }
+            .print-year-dot.ontrack { background: #22c55e; }
+            .print-year-dot.done { background: #9ca3af; }
+
+            /* Legend */
+            .print-legend {
+                display: flex;
+                gap: 16px;
+                margin-top: 12px;
+                padding-top: 8px;
+                border-top: 1px solid #e4e7ec;
+                flex-wrap: wrap;
+            }
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 10px;
+                color: #374151;
+                font-weight: 500;
+            }
+            .legend-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+            }
+            .legend-dot.overdue { background: #ef4444; }
+            .legend-dot.warning { background: #eab308; }
+            .legend-dot.ontrack { background: #22c55e; }
+            .legend-dot.done { background: #9ca3af; }
+        }
+
+        /* Print view hidden on screen */
+        .print-view { display: none; }
     </style>
 </head>
 <body>
+
+    <!-- Screen header -->
     <div class="header">
-        <h1>📅 {{ calendar['name'] }}</h1>
-        <a class="back" href="/">← Back to Calendars</a>
+        <div class="header-left">
+            <a class="back" href="/">← Back</a>
+            <h1>📅 {{ calendar['name'] }}</h1>
+        </div>
+        <div class="header-right">
+            <button class="print-btn" onclick="triggerPrint()">🖨️ Print</button>
+        </div>
     </div>
 
     <div class="view-switcher">
@@ -281,6 +519,9 @@
 
     <div id="calendar-container"></div>
 
+    <!-- Print view (hidden on screen, shown when printing) -->
+    <div class="print-view" id="print-view"></div>
+
     <!-- Modal -->
     <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
         <div class="modal">
@@ -288,25 +529,21 @@
                 <span class="modal-title" id="modal-title"></span>
                 <button class="modal-close" onclick="closeModal()">✕</button>
             </div>
-
-            <!-- Add task form -->
             <div class="add-task-form">
                 <input type="text" id="new-task-name" placeholder="Add a new task...">
                 <input type="date" id="new-task-date">
                 <button onclick="addTask()">+ Add Task</button>
             </div>
-
-            <!-- Task list -->
             <div id="modal-body"></div>
         </div>
     </div>
 
     <script>
         const calendarId = {{ calendar['id'] }};
+        const calendarName = {{ calendar['name'] | tojson }};
         const today = "{{ today }}";
         const tomorrow = "{{ tomorrow }}";
 
-        // All tasks passed from Flask
         let allTasks = [
             {% for task in tasks %}
             {
@@ -367,7 +604,7 @@
             else renderYear();
         }
 
-        // ---- Render functions ----
+        // ---- Screen render functions ----
         function renderWeek() {
             const start = new Date(currentDate);
             start.setDate(start.getDate() - start.getDay());
@@ -452,6 +689,114 @@
             document.getElementById('calendar-container').innerHTML = html;
         }
 
+        // ---- PRINT functions ----
+        function triggerPrint() {
+            if (currentView === 'week') {
+                // Switch to month for printing
+                buildPrintMonth(currentDate.getFullYear(), currentDate.getMonth());
+            } else if (currentView === 'month') {
+                buildPrintMonth(currentDate.getFullYear(), currentDate.getMonth());
+            } else {
+                buildPrintYear(currentDate.getFullYear());
+            }
+            window.print();
+        }
+
+        function buildPrintMonth(year, month) {
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrev = new Date(year, month, 0).getDate();
+            const printDate = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+
+            let html = `
+                <div class="print-header">
+                    <div>
+                        <div class="print-title">📅 ${calendarName}</div>
+                        <div class="print-subtitle">${MONTH_NAMES[month]} ${year}</div>
+                    </div>
+                    <div class="print-subtitle">Printed on ${printDate}</div>
+                </div>
+                <div class="print-month-grid">`;
+
+            DAY_NAMES.forEach(d => { html += `<div class="print-day-name">${d}</div>`; });
+
+            for (let i = firstDay - 1; i >= 0; i--) {
+                html += `<div class="print-day other-month"><div class="print-day-number">${daysInPrev - i}</div></div>`;
+            }
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const isToday = dateStr === today;
+                const dayTasks = getTasksForDate(dateStr);
+                html += `<div class="print-day ${isToday ? 'today-print' : ''}">
+                    <div class="print-day-number">${d}</div>`;
+                dayTasks.forEach(t => {
+                    html += `<span class="print-task ${getTaskClass(t)}">${t.task}</span>`;
+                });
+                html += '</div>';
+            }
+            const total = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+            for (let d = 1; d <= total - firstDay - daysInMonth; d++) {
+                html += `<div class="print-day other-month"><div class="print-day-number">${d}</div></div>`;
+            }
+
+            html += `</div>
+                <div class="print-legend">
+                    <div class="legend-item"><div class="legend-dot overdue"></div> Overdue</div>
+                    <div class="legend-item"><div class="legend-dot warning"></div> Due Soon</div>
+                    <div class="legend-item"><div class="legend-dot ontrack"></div> On Track</div>
+                    <div class="legend-item"><div class="legend-dot done"></div> Done</div>
+                </div>`;
+
+            document.getElementById('print-view').innerHTML = html;
+        }
+
+        function buildPrintYear(year) {
+            const printDate = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+
+            let html = `
+                <div class="print-header">
+                    <div>
+                        <div class="print-title">📅 ${calendarName}</div>
+                        <div class="print-subtitle">Year ${year}</div>
+                    </div>
+                    <div class="print-subtitle">Printed on ${printDate}</div>
+                </div>
+                <div class="print-year-grid">`;
+
+            for (let m = 0; m < 12; m++) {
+                const firstDay = new Date(year, m, 1).getDay();
+                const daysInMonth = new Date(year, m + 1, 0).getDate();
+                html += `<div class="print-year-month">
+                    <div class="print-year-month-title">${MONTH_NAMES[m]}</div>
+                    <div class="print-year-mini-grid">`;
+                DAY_NAMES.forEach(d => { html += `<div class="print-year-day-name">${d[0]}</div>`; });
+                for (let i = 0; i < firstDay; i++) html += `<div class="print-year-day"></div>`;
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = `${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const isToday = dateStr === today;
+                    const dayTasks = getTasksForDate(dateStr);
+                    let dots = '';
+                    if (dayTasks.length > 0) {
+                        dots = '<div class="print-year-dots">' +
+                            dayTasks.map(t => `<span class="print-year-dot ${getTaskClass(t)}"></span>`).join('') +
+                            '</div>';
+                    }
+                    html += `<div class="print-year-day ${isToday ? 'today-print' : ''} ${dayTasks.length > 0 ? 'has-tasks' : ''}">${d}${dots}</div>`;
+                }
+                html += '</div></div>';
+            }
+
+            html += `</div>
+                <div class="print-legend">
+                    <div class="legend-item"><div class="legend-dot overdue"></div> Overdue</div>
+                    <div class="legend-item"><div class="legend-dot warning"></div> Due Soon</div>
+                    <div class="legend-item"><div class="legend-dot ontrack"></div> On Track</div>
+                    <div class="legend-item"><div class="legend-dot done"></div> Done</div>
+                </div>`;
+
+            document.getElementById('print-view').innerHTML = html;
+        }
+
         // ---- Modal ----
         function openModal(dateStr) {
             selectedDate = dateStr;
@@ -486,11 +831,9 @@
                         <span class="modal-task-name ${task.done ? 'done-text' : ''}">${task.task}</span>
                         <div class="modal-task-actions">
                             <button class="btn-small btn-toggle ${task.done ? 'undo' : ''}"
-                                onclick="toggleTask(${task.id})">${task.done ? 'Undo' : '✔ Done'}</button>
-                            <button class="btn-small btn-edit"
-                                onclick="toggleEditForm(${task.id})">✏️</button>
-                            <button class="btn-small btn-delete"
-                                onclick="deleteTask(${task.id})">🗑️</button>
+                                onclick="toggleTask(${task.id})">${task.done ? 'Undo' : '✔'}</button>
+                            <button class="btn-small btn-edit" onclick="toggleEditForm(${task.id})">✏️</button>
+                            <button class="btn-small btn-delete" onclick="deleteTask(${task.id})">🗑️</button>
                         </div>
                     </div>
                     <div class="edit-form" id="edit-form-${task.id}">
@@ -506,20 +849,17 @@
         }
 
         function toggleEditForm(taskId) {
-            const form = document.getElementById(`edit-form-${taskId}`);
-            form.classList.toggle('open');
+            document.getElementById(`edit-form-${taskId}`).classList.toggle('open');
         }
 
-        // ---- Task CRUD ----
         async function addTask() {
             const name = document.getElementById('new-task-name').value.trim();
             const due_date = document.getElementById('new-task-date').value;
             if (!name) return;
-
             const res = await fetch('/api/task/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task: name, due_date: due_date, calendar_id: calendarId })
+                body: JSON.stringify({ task: name, due_date, calendar_id: calendarId })
             });
             const newTask = await res.json();
             allTasks.push({ id: newTask.id, task: newTask.task, due_date: newTask.due_date, done: false });
@@ -541,16 +881,13 @@
             const name = document.getElementById(`edit-name-${taskId}`).value.trim();
             const due_date = document.getElementById(`edit-date-${taskId}`).value;
             if (!name) return;
-
             await fetch(`/api/task/edit/${taskId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task: name, due_date: due_date })
+                body: JSON.stringify({ task: name, due_date })
             });
             const task = allTasks.find(t => t.id === taskId);
             if (task) { task.task = name; task.due_date = due_date; }
-
-            // If due date changed, update selected date to new date
             if (due_date !== selectedDate) selectedDate = due_date;
             renderModalTasks();
             render();
@@ -564,7 +901,6 @@
             render();
         }
 
-        // Initial render
         render();
     </script>
 </body>
