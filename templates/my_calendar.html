@@ -2,17 +2,18 @@
 <html>
 <head>
     <title>{{ calendar['name'] }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root { --bg: #f0f2f5; --card: #ffffff; --border: #e4e7ec; --text: #1a1d23; --muted: #6b7280; --accent: #3b82f6; --green: #22c55e; --yellow: #eab308; --red: #ef4444; --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06); }
         [data-theme="dark"] { --bg: #0f1117; --card: #1a1d23; --border: #2d3038; --text: #f1f5f9; --muted: #94a3b8; }
-        body { font-family: 'DM Sans', sans-serif; max-width: 1000px; margin: 0 auto; background: var(--bg); color: var(--text); padding: 30px 20px 60px; transition: background 0.3s, color 0.3s; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        body { font-family: 'DM Sans', sans-serif; max-width: 1000px; margin: 0 auto; background: var(--bg); color: var(--text); padding: 30px 20px 60px; transition: background 0.3s, color 0.3s; font-size: 15px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         .header-left { display: flex; align-items: center; gap: 12px; }
         h1 { font-size: 22px; font-weight: 700; }
-        .header-right { display: flex; gap: 8px; }
+        .header-right { display: flex; gap: 8px; flex-wrap: wrap; }
         .icon-btn { display: flex; align-items: center; gap: 5px; padding: 7px 13px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
         .icon-btn:hover { color: var(--text); border-color: var(--text); }
         .view-switcher { display: flex; gap: 4px; margin-bottom: 18px; background: var(--card); padding: 5px; border-radius: 10px; border: 1px solid var(--border); width: fit-content; }
@@ -26,7 +27,7 @@
         .nav .today-btn:hover { background: var(--accent); color: white; }
         .nav-title { font-size: 17px; font-weight: 700; flex: 1; text-align: center; }
 
-        /* ===== DAY VIEW ===== */
+        /* DAY VIEW */
         .day-view { background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
         .day-allday { display: flex; align-items: flex-start; gap: 0; border-bottom: 2px solid var(--border); min-height: 48px; cursor: pointer; transition: background 0.15s; }
         .day-allday:hover { background: var(--bg); }
@@ -38,13 +39,12 @@
         .day-hour-label-abs { position: absolute; left: -58px; width: 52px; text-align: right; font-size: 11px; color: var(--muted); font-weight: 600; font-family: 'DM Mono', monospace; padding-right: 8px; user-select: none; pointer-events: none; line-height: 1; }
         .day-hour-line { position: absolute; left: -2px; right: 0; border-top: 1px solid var(--border); }
         .day-half-line-abs { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--border); opacity: 0.35; pointer-events: none; }
-        .day-hover-band { position: absolute; left: 0; right: 0; height: 30px; background: transparent; transition: background 0.1s; pointer-events: none; }
         .day-task-block { position: absolute; border-radius: 7px; padding: 4px 8px; font-size: 12px; font-weight: 600; color: white; cursor: pointer; overflow: hidden; z-index: 2; transition: filter 0.15s, box-shadow 0.15s; box-shadow: 0 1px 4px rgba(0,0,0,0.18); }
         .day-task-block:hover { filter: brightness(1.1); box-shadow: 0 3px 10px rgba(0,0,0,0.25); z-index: 3; }
-        .day-task-block.overdue  { background: var(--red); }
-        .day-task-block.warning  { background: var(--yellow); color: #1a1d23; }
-        .day-task-block.ontrack  { background: var(--green); }
-        .day-task-block.done     { background: #9ca3af; }
+        .day-task-block.overdue { background: var(--red); }
+        .day-task-block.warning { background: var(--yellow); color: #1a1d23; }
+        .day-task-block.ontrack { background: var(--green); }
+        .day-task-block.done { background: #9ca3af; }
         .day-task-block.done .day-task-title { text-decoration: line-through; opacity: 0.8; }
         .day-task-time-range { font-size: 10px; opacity: 0.88; font-family: 'DM Mono', monospace; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .day-task-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
@@ -52,9 +52,8 @@
         .day-task-time-sm { font-size: 10px; opacity: 0.88; font-family: 'DM Mono', monospace; flex-shrink: 0; }
         .current-time-line { position: absolute; left: 0; right: 0; height: 2px; background: var(--red); z-index: 10; pointer-events: none; }
         .current-time-dot { position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
-        .day-time-grid.drag-active { cursor: grabbing; }
 
-        /* ===== WEEK VIEW ===== */
+        /* WEEK VIEW */
         .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
         .week-day { background: var(--card); border-radius: 10px; padding: 10px; min-height: 130px; cursor: pointer; border: 1px solid var(--border); transition: box-shadow 0.2s, transform 0.2s; }
         .week-day:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
@@ -64,7 +63,7 @@
         .week-day-header { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
         .week-day-number { font-size: 19px; font-weight: 700; font-family: 'DM Mono', monospace; margin-bottom: 6px; }
 
-        /* ===== MONTH VIEW ===== */
+        /* MONTH VIEW */
         .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
         .month-day-name { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); padding: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
         .month-day { background: var(--card); border-radius: 7px; padding: 6px; min-height: 82px; cursor: pointer; border: 1px solid var(--border); transition: box-shadow 0.2s; }
@@ -75,7 +74,7 @@
         [data-theme="dark"] .month-day.drag-over { background: #1e3a5f !important; }
         .month-day-number { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
 
-        /* ===== YEAR VIEW ===== */
+        /* YEAR VIEW */
         .year-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         .year-month { background: var(--card); border-radius: 10px; padding: 11px; border: 1px solid var(--border); }
         .year-month-title { font-size: 12px; font-weight: 700; margin-bottom: 7px; text-align: center; }
@@ -86,7 +85,7 @@
         [data-theme="dark"] .year-day:hover { background: #1e3a5f; }
         .year-day.today { background: var(--accent); color: white; border-radius: 50%; }
 
-        /* ===== PILLS (week/month) ===== */
+        /* PILLS */
         .task-pill { font-size: 11px; padding: 2px 7px; border-radius: 99px; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; display: block; font-weight: 500; cursor: grab; user-select: none; transition: opacity 0.2s; }
         .task-pill:active { cursor: grabbing; opacity: 0.7; }
         .task-pill.overdue { background: var(--red); }
@@ -100,7 +99,7 @@
         .dot.ontrack { background: var(--green); } .dot.done { background: #9ca3af; }
         .dots-row { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 1px; }
 
-        /* ===== MODAL ===== */
+        /* MODAL */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.open { display: flex; }
         .modal { background: var(--card); border-radius: 14px; padding: 24px; width: 460px; max-width: 95%; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); border: 1px solid var(--border); }
@@ -148,11 +147,16 @@
         .btn-save { background: var(--accent); } .btn-cancel { background: #9ca3af; }
         .modal-empty { color: var(--muted); text-align: center; padding: 20px 0; font-size: 14px; }
 
-        /* ===== PRINT ===== */
+        /* COPYRIGHT */
+        .copyright { text-align: center; padding: 24px 0 8px; font-size: 12px; color: var(--muted); user-select: none; }
+        .copyright a { color: var(--muted); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        .copyright a:hover { color: var(--accent); }
+
+        /* PRINT */
         @media print {
             @page { size: A4 landscape; margin: 15mm 12mm; }
             body { background: white !important; margin: 0; padding: 0; }
-            .header, .view-switcher, .nav, .modal-overlay, #calendar-container { display: none !important; }
+            .header, .view-switcher, .nav, .modal-overlay, #calendar-container, .copyright { display: none !important; }
             .print-view { display: block !important; }
             .print-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #1a1d23; }
             .print-title { font-size: 22px; font-weight: 700; color: #1a1d23; }
@@ -188,23 +192,37 @@
             .legend-dot.ontrack { background: #22c55e; } .legend-dot.done { background: #9ca3af; }
         }
         .print-view { display: none; }
-        .copyright { 
-            text-align: center; 
-            padding: 24px 0 8px; 
-            font-size: 12px; 
-            color: var(--muted); 
-            user-select: none;
+
+        /* MOBILE */
+        @media (max-width: 600px) {
+            body { font-size: 16px; padding: 16px 12px 40px; }
+            h1 { font-size: 18px; }
+            .icon-btn { font-size: 12px; padding: 6px 9px; }
+            .view-btn { font-size: 12px; padding: 6px 11px; }
+            .nav-title { font-size: 14px; }
+            .nav button { font-size: 12px; padding: 6px 10px; }
+            .week-grid { grid-template-columns: repeat(7, 1fr); gap: 3px; }
+            .week-day { padding: 6px 4px; min-height: 80px; }
+            .week-day-header { font-size: 9px; }
+            .week-day-number { font-size: 14px; }
+            .task-pill { font-size: 10px; padding: 2px 5px; }
+            .month-day { min-height: 56px; padding: 4px; }
+            .month-day-number { font-size: 12px; }
+            .year-grid { grid-template-columns: repeat(2, 1fr); }
+            .modal { padding: 16px 12px; }
+            .modal-title { font-size: 15px; }
+            .modal-task-name { font-size: 15px; }
+            .modal-task-time { font-size: 13px; }
+            .add-task-form input,
+            .add-task-form select,
+            .add-task-form button { font-size: 16px; padding: 11px 12px; }
+            .btn-small { font-size: 13px; padding: 6px 10px; }
+            .day-task-block { font-size: 11px; }
+            .day-hour-label-abs { font-size: 10px; }
+            input, select, button { font-size: 16px; }
         }
-        .copyright a { 
-            color: var(--muted); 
-            text-decoration: none; 
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-        .copyright a:hover { color: var(--accent); }
     </style>
 </head>
-    <div class="copyright">© 2026 <a href="#" title="Developer">Alireza Nomani</a>. All rights reserved.</div>
 <body>
 
 <div class="header">
@@ -236,7 +254,6 @@
 <div id="calendar-container"></div>
 <div class="print-view" id="print-view"></div>
 
-<!-- Modal -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
     <div class="modal">
         <div class="modal-header">
@@ -252,7 +269,7 @@
                 <span class="time-range-icon">⏰</span>
                 <input type="time" id="new-task-time" onchange="autoFillEndTime('new-task-time','new-task-time-end')">
                 <span class="time-range-sep">→</span>
-                <input type="time" id="new-task-time-end" data-i18n-placeholder="end_optional">
+                <input type="time" id="new-task-time-end">
             </div>
             <select id="new-task-recurrence"><option value="none" data-i18n="no_repeat">No repeat</option></select>
             <button onclick="addTask()" data-i18n="add_task">+ Add Task</button>
@@ -261,60 +278,24 @@
     </div>
 </div>
 
+<div class="copyright">© 2026 <a href="#" title="Developer">Alireza Nomani</a>. All rights reserved.</div>
+
 <script>
-// ===================== i18n =====================
 const LANG = {
-    en: {
-        back:'Back', print:'Print', day:'Day', week:'Week', month:'Month', year:'Year',
-        prev:'Prev', next:'Next', today_btn:'Today',
-        add_task_ph:'Add a new task...', end_optional:'End (optional)',
-        no_repeat:'No repeat', daily:'🔁 Daily', weekly_on:'🔁 Weekly on',
-        monthly_on:'🔁 Monthly on the', monthly_nth:'🔁 Monthly on the', monthly_last:'🔁 Monthly on the last',
-        add_task:'+ Add Task', save:'💾 Save', cancel:'Cancel',
-        no_tasks:'No tasks on this day. Add one above!',
-        delete_task:'Delete this task?', all_day:'All Day',
-        repeats_daily:'🔁 Repeats daily', every:'🔁 Every', repeats_monthly:'🔁 Repeats monthly',
-        overdue:'Overdue', due_soon:'Due Soon', on_track:'On Track', done:'Done',
-        printed:'Printed', recurring_legend:'🔁 Recurring',
-        DAY_NAMES:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
-        DAY_FULL:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-        MONTH_NAMES:['January','February','March','April','May','June','July','August','September','October','November','December'],
-        ORD:['','1st','2nd','3rd','4th','5th']
-    },
-    zh: {
-        back:'返回', print:'打印', day:'日', week:'周', month:'月', year:'年',
-        prev:'上一', next:'下一', today_btn:'今天',
-        add_task_ph:'添加新任务...', end_optional:'结束（可选）',
-        no_repeat:'不重复', daily:'🔁 每天', weekly_on:'🔁 每周',
-        monthly_on:'🔁 每月', monthly_nth:'🔁 每月第', monthly_last:'🔁 每月最后一个',
-        add_task:'+ 添加任务', save:'💾 保存', cancel:'取消',
-        no_tasks:'今天没有任务，请在上方添加！',
-        delete_task:'确认删除此任务？', all_day:'全天',
-        repeats_daily:'🔁 每天重复', every:'🔁 每', repeats_monthly:'🔁 每月重复',
-        overdue:'已逾期', due_soon:'即将到期', on_track:'进行中', done:'已完成',
-        printed:'打印于', recurring_legend:'🔁 重复任务',
-        DAY_NAMES:['日','一','二','三','四','五','六'],
-        DAY_FULL:['周日','周一','周二','周三','周四','周五','周六'],
-        MONTH_NAMES:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
-        ORD:['','第一','第二','第三','第四','第五']
-    }
+    en: { back:'Back', print:'Print', day:'Day', week:'Week', month:'Month', year:'Year', prev:'Prev', next:'Next', today_btn:'Today', add_task_ph:'Add a new task...', end_optional:'End (optional)', no_repeat:'No repeat', daily:'🔁 Daily', weekly_on:'🔁 Weekly on', monthly_on:'🔁 Monthly on the', monthly_nth:'🔁 Monthly on the', monthly_last:'🔁 Monthly on the last', add_task:'+ Add Task', save:'💾 Save', cancel:'Cancel', no_tasks:'No tasks on this day. Add one above!', delete_task:'Delete this task?', all_day:'All Day', repeats_daily:'🔁 Repeats daily', every:'🔁 Every', repeats_monthly:'🔁 Repeats monthly', overdue:'Overdue', due_soon:'Due Soon', on_track:'On Track', done:'Done', printed:'Printed', recurring_legend:'🔁 Recurring', DAY_NAMES:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], DAY_FULL:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], MONTH_NAMES:['January','February','March','April','May','June','July','August','September','October','November','December'], ORD:['','1st','2nd','3rd','4th','5th'] },
+    zh: { back:'返回', print:'打印', day:'日', week:'周', month:'月', year:'年', prev:'上一', next:'下一', today_btn:'今天', add_task_ph:'添加新任务...', end_optional:'结束（可选）', no_repeat:'不重复', daily:'🔁 每天', weekly_on:'🔁 每周', monthly_on:'🔁 每月', monthly_nth:'🔁 每月第', monthly_last:'🔁 每月最后一个', add_task:'+ 添加任务', save:'💾 保存', cancel:'取消', no_tasks:'今天没有任务，请在上方添加！', delete_task:'确认删除此任务？', all_day:'全天', repeats_daily:'🔁 每天重复', every:'🔁 每', repeats_monthly:'🔁 每月重复', overdue:'已逾期', due_soon:'即将到期', on_track:'进行中', done:'已完成', printed:'打印于', recurring_legend:'🔁 重复任务', DAY_NAMES:['日','一','二','三','四','五','六'], DAY_FULL:['周日','周一','周二','周三','周四','周五','周六'], MONTH_NAMES:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'], ORD:['','第一','第二','第三','第四','第五'] }
 };
 let currentLang = localStorage.getItem('lang') || 'en';
 function t(key){ return LANG[currentLang][key] || key; }
 function applyLang(){
-    document.querySelectorAll('[data-i18n]').forEach(el=>{
-        const k=el.dataset.i18n; if(LANG[currentLang][k]) el.textContent=LANG[currentLang][k];
-    });
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
-        const k=el.dataset.i18nPlaceholder; if(LANG[currentLang][k]) el.placeholder=LANG[currentLang][k];
-    });
+    document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.dataset.i18n; if(LANG[currentLang][k]) el.textContent=LANG[currentLang][k]; });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{ const k=el.dataset.i18nPlaceholder; if(LANG[currentLang][k]) el.placeholder=LANG[currentLang][k]; });
 }
 function toggleLang(){ currentLang=currentLang==='en'?'zh':'en'; localStorage.setItem('lang',currentLang); applyLang(); updateLangBtn(); render(); }
 function updateLangBtn(){ document.getElementById('lang-btn').textContent=currentLang==='en'?'中文':'EN'; }
 function toggleDark(){ const n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',n); localStorage.setItem('theme',n); document.getElementById('dark-btn').textContent=n==='dark'?'☀️':'🌙'; }
 function updateDarkBtn(){ document.getElementById('dark-btn').textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙'; }
 
-// ===================== Data =====================
 const calendarId = {{ calendar['id'] }};
 const calendarName = {{ calendar['name'] | tojson }};
 const today = "{{ today }}";
@@ -322,142 +303,64 @@ const tomorrow = "{{ tomorrow }}";
 
 let allTasks = [
 {% for task in tasks %}
-{
-    id: {{ task['id'] }},
-    task: {{ task['task'] | tojson }},
-    due_date: "{{ task['due_date'] if task['due_date'] else '' }}",
-    due_time: "{{ task['due_time'] if task['due_time'] else '' }}",
-    due_time_end: "{{ task['due_time_end'] if task['due_time_end'] else '' }}",
-    done: {{ 'true' if task['done'] else 'false' }},
-    recurrence: "{{ task['recurrence'] if task['recurrence'] else 'none' }}",
-    completed_dates: {{ completions.get(task['id'], []) | tojson }}
-},
+{ id:{{ task['id'] }}, task:{{ task['task'] | tojson }}, due_date:"{{ task['due_date'] if task['due_date'] else '' }}", due_time:"{{ task['due_time'] if task['due_time'] else '' }}", due_time_end:"{{ task['due_time_end'] if task['due_time_end'] else '' }}", done:{{ 'true' if task['done'] else 'false' }}, recurrence:"{{ task['recurrence'] if task['recurrence'] else 'none' }}", completed_dates:{{ completions.get(task['id'], []) | tojson }} },
 {% endfor %}
 ];
 
-let currentView = 'day';
-let currentDate = new Date();
-let selectedDate = '';
-let dragTaskId = null;
-const ORD_EN = ['','1st','2nd','3rd','4th','5th'];
-const PX_PER_MIN = 1;   // 60px per hour
+let currentView='day', currentDate=new Date(), selectedDate='', dragTaskId=null;
+const ORD_EN=['','1st','2nd','3rd','4th','5th'];
+const PX_PER_MIN=1;
 
-// ===================== Time helpers =====================
 function timeToMinutes(s){ if(!s) return 0; const [h,m]=s.split(':').map(Number); return h*60+m; }
 function minutesToTime(m){ const h=Math.max(0,Math.min(23,Math.floor(m/60))); const min=Math.max(0,Math.min(59,m%60)); return `${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`; }
-
-function formatTime(s){
-    if(!s) return '';
-    const [h,m]=s.split(':'); const hr=parseInt(h); const ampm=hr>=12?'PM':'AM'; const h12=hr%12||12;
-    return `${h12}:${m}${ampm}`;
-}
-function formatTimeChinese(s){
-    if(!s) return '';
-    const [h,m]=s.split(':'); const hr=parseInt(h);
-    const p=hr<6?'凌晨':hr<12?'上午':hr<18?'下午':'晚上'; const h12=hr%12||12;
-    return `${p}${h12}:${m}`;
-}
+function formatTime(s){ if(!s) return ''; const [h,m]=s.split(':'); const hr=parseInt(h); const ampm=hr>=12?'PM':'AM'; const h12=hr%12||12; return `${h12}:${m}${ampm}`; }
+function formatTimeChinese(s){ if(!s) return ''; const [h,m]=s.split(':'); const hr=parseInt(h); const p=hr<6?'凌晨':hr<12?'上午':hr<18?'下午':'晚上'; const h12=hr%12||12; return `${p}${h12}:${m}`; }
 function displayTime(s){ if(!s) return ''; return currentLang==='zh'?formatTimeChinese(s):formatTime(s); }
+function displayTimeRange(start,end){ if(!start) return ''; const s=displayTime(start); return end?`${s} – ${displayTime(end)}`:s; }
+function hourLabel(h){ if(currentLang==='zh'){ const p=h<6?'凌晨':h<12?'上午':h<18?'下午':'晚上'; const h12=h%12||12; return h===0?'':` ${p}${h12}`; } if(h===0) return ''; if(h===12) return '12 PM'; return h<12?`${h} AM`:`${h-12} PM`; }
+function autoFillEndTime(startId,endId){ const sv=document.getElementById(startId).value; const el=document.getElementById(endId); if(sv&&!el.value){ el.value=minutesToTime(timeToMinutes(sv)+60); } }
+function sortTasksByTime(tasks){ return [...tasks].sort((a,b)=>{ if(!a.due_time&&!b.due_time) return 0; if(!a.due_time) return 1; if(!b.due_time) return -1; return a.due_time.localeCompare(b.due_time); }); }
 
-function displayTimeRange(start, end){
-    if(!start) return '';
-    const s = displayTime(start);
-    return end ? `${s} – ${displayTime(end)}` : s;
-}
-
-function hourLabel(h){
-    if(currentLang==='zh'){
-        const p=h<6?'凌晨':h<12?'上午':h<18?'下午':'晚上'; const h12=h%12||12;
-        return h===0?'':` ${p}${h12}`;
-    }
-    if(h===0) return ''; if(h===12) return '12 PM';
-    return h<12?`${h} AM`:`${h-12} PM`;
-}
-
-function autoFillEndTime(startId, endId){
-    const sv=document.getElementById(startId).value;
-    const el=document.getElementById(endId);
-    if(sv && !el.value){
-        el.value = minutesToTime(timeToMinutes(sv)+60);
-    }
-}
-
-function sortTasksByTime(tasks){
-    return [...tasks].sort((a,b)=>{
-        if(!a.due_time&&!b.due_time) return 0;
-        if(!a.due_time) return 1; if(!b.due_time) return -1;
-        return a.due_time.localeCompare(b.due_time);
-    });
-}
-
-// Layout overlapping timed tasks into columns
 function layoutTasks(timedTasks){
     if(!timedTasks.length) return [];
     const sorted=[...timedTasks].sort((a,b)=>a.due_time.localeCompare(b.due_time));
-    sorted.forEach(t=>{
-        t._start=timeToMinutes(t.due_time);
-        t._end=t.due_time_end?timeToMinutes(t.due_time_end):t._start+60;
-        if(t._end<=t._start) t._end=t._start+60;
-    });
+    sorted.forEach(t=>{ t._start=timeToMinutes(t.due_time); t._end=t.due_time_end?timeToMinutes(t.due_time_end):t._start+60; if(t._end<=t._start) t._end=t._start+60; });
     const colEnds=[];
-    sorted.forEach(task=>{
-        let col=-1;
-        for(let c=0;c<colEnds.length;c++){ if(task._start>=colEnds[c]){col=c;break;} }
-        if(col===-1){ col=colEnds.length; colEnds.push(0); }
-        task._col=col; colEnds[col]=task._end;
-    });
+    sorted.forEach(task=>{ let col=-1; for(let c=0;c<colEnds.length;c++){ if(task._start>=colEnds[c]){col=c;break;} } if(col===-1){col=colEnds.length;colEnds.push(0);} task._col=col; colEnds[col]=task._end; });
     const totalCols=colEnds.length;
     sorted.forEach(task=>{ task._numCols=totalCols; });
     return sorted;
 }
 
-// ===================== Recurrence =====================
-function ordSuffix(n){
-    if(currentLang==='zh') return t('ORD')[n]||n+'';
-    if(n>=11&&n<=13) return n+'th';
-    switch(n%10){case 1:return n+'st';case 2:return n+'nd';case 3:return n+'rd';default:return n+'th';}
-}
+function ordSuffix(n){ if(currentLang==='zh') return t('ORD')[n]||n+''; if(n>=11&&n<=13) return n+'th'; switch(n%10){case 1:return n+'st';case 2:return n+'nd';case 3:return n+'rd';default:return n+'th';} }
 
-function updateRecurrenceOptions(dateStr, selectId){
+function updateRecurrenceOptions(dateStr,selectId){
     const sel=document.getElementById(selectId); if(!sel||!dateStr) return;
     const saved=sel.value;
     const d=new Date(dateStr+'T00:00:00');
-    const dow=d.getDay(), dayName=t('DAY_FULL')[dow];
-    const dom=d.getDate(), occ=Math.ceil(dom/7);
-    const dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
-    const isLast=(dom+7)>dim;
+    const dow=d.getDay(),dayName=t('DAY_FULL')[dow],dom=d.getDate(),occ=Math.ceil(dom/7);
+    const dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),isLast=(dom+7)>dim;
     if(currentLang==='en'){
-        sel.innerHTML=`<option value="none">${t('no_repeat')}</option>
-        <option value="daily">${t('daily')}</option>
-        <option value="weekly">${t('weekly_on')} ${dayName}</option>
-        <option value="monthly">${t('monthly_on')} ${ordSuffix(dom)}</option>
-        <option value="monthly_weekday_${occ}_${dow}">${t('monthly_nth')} ${ordSuffix(occ)} ${dayName}</option>
-        ${isLast?`<option value="monthly_weekday_last_${dow}">${t('monthly_last')} ${dayName}</option>`:''}`;
+        sel.innerHTML=`<option value="none">${t('no_repeat')}</option><option value="daily">${t('daily')}</option><option value="weekly">${t('weekly_on')} ${dayName}</option><option value="monthly">${t('monthly_on')} ${ordSuffix(dom)}</option><option value="monthly_weekday_${occ}_${dow}">${t('monthly_nth')} ${ordSuffix(occ)} ${dayName}</option>${isLast?`<option value="monthly_weekday_last_${dow}">${t('monthly_last')} ${dayName}</option>`:''}`;
     } else {
-        sel.innerHTML=`<option value="none">${t('no_repeat')}</option>
-        <option value="daily">${t('daily')}</option>
-        <option value="weekly">${t('weekly_on')}${dayName}</option>
-        <option value="monthly">${t('monthly_on')}${dom}日</option>
-        <option value="monthly_weekday_${occ}_${dow}">🔁 每月${t('ORD')[occ]}个${dayName}</option>
-        ${isLast?`<option value="monthly_weekday_last_${dow}">🔁 每月最后一个${dayName}</option>`:''}`;
+        sel.innerHTML=`<option value="none">${t('no_repeat')}</option><option value="daily">${t('daily')}</option><option value="weekly">${t('weekly_on')}${dayName}</option><option value="monthly">${t('monthly_on')}${dom}日</option><option value="monthly_weekday_${occ}_${dow}">🔁 每月${t('ORD')[occ]}个${dayName}</option>${isLast?`<option value="monthly_weekday_last_${dow}">🔁 每月最后一个${dayName}</option>`:''}`;
     }
     if([...sel.options].some(o=>o.value===saved)) sel.value=saved;
 }
 
-// ===================== Task helpers =====================
 function isCompletedOnDate(task,dateStr){ if(!task.recurrence||task.recurrence==='none') return task.done; return task.completed_dates&&task.completed_dates.includes(dateStr); }
 function getTaskClass(task,dateStr){ const d=dateStr||task.due_date; if(isCompletedOnDate(task,d)) return 'done'; if(!d) return 'ontrack'; if(d<today) return 'overdue'; if(d<=tomorrow) return 'warning'; return 'ontrack'; }
 function isRecurrenceOf(task,dateStr){
     if(!task.due_date||!task.recurrence||task.recurrence==='none') return false;
     if(dateStr<=task.due_date) return false;
-    const start=new Date(task.due_date+'T00:00:00'), target=new Date(dateStr+'T00:00:00');
+    const start=new Date(task.due_date+'T00:00:00'),target=new Date(dateStr+'T00:00:00');
     if(task.recurrence==='daily') return true;
     if(task.recurrence==='weekly') return Math.round((target-start)/86400000)%7===0;
     if(task.recurrence==='monthly') return target.getDate()===start.getDate();
     if(task.recurrence.startsWith('monthly_weekday_')){
-        const parts=task.recurrence.split('_'), occ=parts[2], dow=parseInt(parts[3]);
+        const parts=task.recurrence.split('_'),occ=parts[2],dow=parseInt(parts[3]);
         if(target.getDay()!==dow) return false;
-        const td=target.getDate(), dim=new Date(target.getFullYear(),target.getMonth()+1,0).getDate();
+        const td=target.getDate(),dim=new Date(target.getFullYear(),target.getMonth()+1,0).getDate();
         if(occ==='last') return(td+7)>dim;
         return Math.ceil(td/7)===parseInt(occ);
     }
@@ -469,171 +372,105 @@ function recurLabel(r,due_date){
     if(r==='daily') return t('repeats_daily');
     if(r==='weekly'){ if(due_date){const d=new Date(due_date+'T00:00:00');return `${t('every')} ${t('DAY_FULL')[d.getDay()]}`;} return t('repeats_daily'); }
     if(r==='monthly') return t('repeats_monthly');
-    if(r.startsWith('monthly_weekday_')){
-        const parts=r.split('_'), occ=parts[2], dow=parseInt(parts[3]), dayName=t('DAY_FULL')[dow];
-        if(currentLang==='en') return occ==='last'?`🔁 Last ${dayName} of month`:`🔁 ${ORD_EN[parseInt(occ)]} ${dayName} of month`;
-        return occ==='last'?`🔁 每月最后一个${dayName}`:`🔁 每月第${parseInt(occ)}个${dayName}`;
-    }
+    if(r.startsWith('monthly_weekday_')){ const parts=r.split('_'),occ=parts[2],dow=parseInt(parts[3]),dayName=t('DAY_FULL')[dow]; if(currentLang==='en') return occ==='last'?`🔁 Last ${dayName} of month`:`🔁 ${ORD_EN[parseInt(occ)]} ${dayName} of month`; return occ==='last'?`🔁 每月最后一个${dayName}`:`🔁 每月第${parseInt(occ)}个${dayName}`; }
     return '';
 }
 function formatDate(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function friendlyDate(dateStr){
-    const [y,m,d]=dateStr.split('-');
-    if(currentLang==='zh') return `${y}年${parseInt(m)}月${parseInt(d)}日`;
-    return new Date(y,m-1,d).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-}
+function friendlyDate(dateStr){ const [y,m,d]=dateStr.split('-'); if(currentLang==='zh') return `${y}年${parseInt(m)}月${parseInt(d)}日`; return new Date(y,m-1,d).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}); }
 
-// ===================== Navigation =====================
-function switchView(view){
-    currentView=view;
-    document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
-    document.getElementById('btn-'+view).classList.add('active');
-    render();
-}
-function navigate(dir){
-    if(currentView==='day') currentDate.setDate(currentDate.getDate()+dir);
-    else if(currentView==='week') currentDate.setDate(currentDate.getDate()+dir*7);
-    else if(currentView==='month') currentDate.setMonth(currentDate.getMonth()+dir);
-    else currentDate.setFullYear(currentDate.getFullYear()+dir);
-    render();
-}
+function switchView(view){ currentView=view; document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active')); document.getElementById('btn-'+view).classList.add('active'); render(); }
+function navigate(dir){ if(currentView==='day') currentDate.setDate(currentDate.getDate()+dir); else if(currentView==='week') currentDate.setDate(currentDate.getDate()+dir*7); else if(currentView==='month') currentDate.setMonth(currentDate.getMonth()+dir); else currentDate.setFullYear(currentDate.getFullYear()+dir); render(); }
 function goToToday(){ currentDate=new Date(); render(); }
 function jumpToDay(dateStr){ const [y,m,d]=dateStr.split('-').map(Number); currentDate=new Date(y,m-1,d); switchView('day'); }
 function render(){ if(currentView==='day') renderDay(); else if(currentView==='week') renderWeek(); else if(currentView==='month') renderMonth(); else renderYear(); }
 
-// ===================== Drag & Drop =====================
 function onDragStart(e,taskId){ dragTaskId=taskId; e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',taskId); }
 function onDragOver(e,el){ e.preventDefault(); document.querySelectorAll('.drag-over').forEach(d=>d.classList.remove('drag-over')); el.classList.add('drag-over'); }
 function onDragLeave(el){ el.classList.remove('drag-over'); }
 async function onDrop(e,dateStr,el){ e.preventDefault(); el.classList.remove('drag-over'); if(!dragTaskId) return; const taskId=dragTaskId; dragTaskId=null; const task=allTasks.find(t=>t.id===taskId); if(!task) return; await fetch(`/api/task/edit/${taskId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:task.task,due_date:dateStr,due_time:task.due_time,due_time_end:task.due_time_end,recurrence:task.recurrence})}); task.due_date=dateStr; render(); }
-
-// Drop onto day grid — snaps time, preserves duration
 async function onDayGridDrop(e,dateStr){
-    e.preventDefault();
-    const grid=document.getElementById('day-time-grid');
-    if(grid) grid.classList.remove('drag-active');
-    if(!dragTaskId) return;
-    const taskId=dragTaskId; dragTaskId=null;
+    e.preventDefault(); const grid=document.getElementById('day-time-grid'); if(grid) grid.classList.remove('drag-active');
+    if(!dragTaskId) return; const taskId=dragTaskId; dragTaskId=null;
     const task=allTasks.find(t=>t.id===taskId); if(!task) return;
-    const gridEl=document.getElementById('day-time-grid');
-    const rect=gridEl.getBoundingClientRect();
-    const y=e.clientY-rect.top;
-    const snappedMins=Math.round(Math.max(0,Math.min(1439,y))/15)*15;
+    const gridEl=document.getElementById('day-time-grid'); const rect=gridEl.getBoundingClientRect();
+    const y=e.clientY-rect.top; const snappedMins=Math.round(Math.max(0,Math.min(1439,y))/15)*15;
     const newTime=minutesToTime(snappedMins);
     let newEnd=task.due_time_end;
-    if(task.due_time && task.due_time_end){
-        const dur=timeToMinutes(task.due_time_end)-timeToMinutes(task.due_time);
-        newEnd=minutesToTime(Math.min(1439,snappedMins+dur));
-    }
+    if(task.due_time&&task.due_time_end){ const dur=timeToMinutes(task.due_time_end)-timeToMinutes(task.due_time); newEnd=minutesToTime(Math.min(1439,snappedMins+dur)); }
     await fetch(`/api/task/edit/${taskId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:task.task,due_date:dateStr,due_time:newTime,due_time_end:newEnd||'',recurrence:task.recurrence})});
-    task.due_date=dateStr; task.due_time=newTime; task.due_time_end=newEnd||'';
-    render();
+    task.due_date=dateStr; task.due_time=newTime; task.due_time_end=newEnd||''; render();
 }
 
-// ===================== DAY VIEW =====================
 function renderDay(){
     const dateStr=formatDate(currentDate);
-    const DN=t('DAY_FULL'), MN=t('MONTH_NAMES');
+    const DN=t('DAY_FULL');
     if(currentLang==='zh') document.getElementById('nav-title').textContent=`${currentDate.getFullYear()}年${currentDate.getMonth()+1}月${currentDate.getDate()}日 ${DN[currentDate.getDay()]}`;
     else document.getElementById('nav-title').textContent=currentDate.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
     const dayTasks=getTasksForDate(dateStr);
     const alldayTasks=dayTasks.filter(t=>!t.due_time);
     const timedTasks=dayTasks.filter(t=>t.due_time);
     const laidOut=layoutTasks(timedTasks);
     const isToday=dateStr===today;
     const now=new Date();
-
-    // All-day band
     let html=`<div class="day-view">
-    <div class="day-allday" onclick="openModal('${dateStr}')"
-        ondragover="onDragOver(event,this)" ondragleave="onDragLeave(this)" ondrop="onDrop(event,'${dateStr}',this)">
+    <div class="day-allday" onclick="openModal('${dateStr}')" ondragover="onDragOver(event,this)" ondragleave="onDragLeave(this)" ondrop="onDrop(event,'${dateStr}',this)">
         <div class="day-allday-label">${t('all_day')}</div>
         <div class="day-allday-divider"></div>
-        <div class="day-allday-tasks">
-            ${alldayTasks.length?alldayTasks.map(task=>pillHtml(task,dateStr)).join(''):`<span style="font-size:12px;color:var(--muted);padding-top:4px;">+ ${t('add_task_ph')}</span>`}
-        </div>
-    </div>`;
-
-    // Scrollable time grid
-    html+=`<div class="day-scroll" id="day-scroll">
+        <div class="day-allday-tasks">${alldayTasks.length?alldayTasks.map(task=>pillHtml(task,dateStr)).join(''):`<span style="font-size:12px;color:var(--muted);padding-top:4px;">+ ${t('add_task_ph')}</span>`}</div>
+    </div>
+    <div class="day-scroll" id="day-scroll">
     <div class="day-time-grid" id="day-time-grid"
         onclick="onDayGridClick(event,'${dateStr}')"
         ondragover="event.preventDefault();document.getElementById('day-time-grid').classList.add('drag-active')"
         ondragleave="document.getElementById('day-time-grid').classList.remove('drag-active')"
         ondrop="onDayGridDrop(event,'${dateStr}')">`;
-
-    // Hour lines and labels
     for(let h=0;h<24;h++){
         const topPx=h*60;
         html+=`<div class="day-hour-label-abs" style="top:${topPx}px">${hourLabel(h)}</div>`;
         html+=`<div class="day-hour-line" style="top:${topPx}px"></div>`;
         if(h<23) html+=`<div class="day-half-line-abs" style="top:${topPx+30}px"></div>`;
     }
-
-    // Task blocks (absolute positioned)
     laidOut.forEach(task=>{
         const cls=getTaskClass(task,dateStr);
         const top=task._start*PX_PER_MIN;
-        const height=Math.max((task._end-task._start)*PX_PER_MIN, 28);
+        const height=Math.max((task._end-task._start)*PX_PER_MIN,28);
         const leftPct=task._col/task._numCols*100;
         const widthPct=100/task._numCols;
         const timeRange=displayTimeRange(task.due_time,task.due_time_end);
         const isShort=height<44;
         const recurIcon=task.recurrence!=='none'?' 🔁':'';
-
-        html+=`<div class="day-task-block ${cls}"
-            draggable="true"
-            ondragstart="onDragStart(event,${task.id})"
+        html+=`<div class="day-task-block ${cls}" draggable="true" ondragstart="onDragStart(event,${task.id})"
             onclick="event.stopPropagation();openModalWithTime('${dateStr}','${task.due_time}','${task.due_time_end||''}')"
             style="top:${top}px;height:${height}px;left:calc(${leftPct}%+2px);width:calc(${widthPct}%-4px);">
-            ${isShort
-                ?`<div class="day-task-inline"><span class="day-task-time-sm">${timeRange}</span><span>${task.task}${recurIcon}</span></div>`
-                :`<div class="day-task-time-range">${timeRange}</div><div class="day-task-title">${task.task}${recurIcon}</div>`
-            }
+            ${isShort?`<div class="day-task-inline"><span class="day-task-time-sm">${timeRange}</span><span>${task.task}${recurIcon}</span></div>`:`<div class="day-task-time-range">${timeRange}</div><div class="day-task-title">${task.task}${recurIcon}</div>`}
         </div>`;
     });
-
-    // Current time line
-    if(isToday){
-        const nowMins=now.getHours()*60+now.getMinutes();
-        html+=`<div class="current-time-line" style="top:${nowMins}px"><div class="current-time-dot"></div></div>`;
-    }
-
+    if(isToday){ const nowMins=now.getHours()*60+now.getMinutes(); html+=`<div class="current-time-line" style="top:${nowMins}px"><div class="current-time-dot"></div></div>`; }
     html+=`</div></div></div>`;
     document.getElementById('calendar-container').innerHTML=html;
-
-    // Scroll to current time or 8am
     const scrollTo=isToday?Math.max(0,now.getHours()*60-60):8*60;
     setTimeout(()=>{ const s=document.getElementById('day-scroll'); if(s) s.scrollTop=scrollTo; },50);
 }
 
 function onDayGridClick(e,dateStr){
     if(e.target.closest('.day-task-block')) return;
-    const gridEl=document.getElementById('day-time-grid');
-    const rect=gridEl.getBoundingClientRect();
-    const y=e.clientY-rect.top;
-    const snappedMins=Math.round(Math.max(0,Math.min(1439,y))/15)*15;
-    const startTime=minutesToTime(snappedMins);
-    const endTime=minutesToTime(Math.min(1439,snappedMins+60));
-    openModalWithTime(dateStr,startTime,endTime);
+    const gridEl=document.getElementById('day-time-grid'); const rect=gridEl.getBoundingClientRect();
+    const y=e.clientY-rect.top; const snappedMins=Math.round(Math.max(0,Math.min(1439,y))/15)*15;
+    openModalWithTime(dateStr,minutesToTime(snappedMins),minutesToTime(Math.min(1439,snappedMins+60)));
 }
 
-// ===================== WEEK VIEW =====================
 function renderWeek(){
     const start=new Date(currentDate); start.setDate(start.getDate()-start.getDay());
     const end=new Date(start); end.setDate(end.getDate()+6);
-    const DN=t('DAY_NAMES'), MN=t('MONTH_NAMES');
+    const DN=t('DAY_NAMES'),MN=t('MONTH_NAMES');
     document.getElementById('nav-title').textContent=`${MN[start.getMonth()]} ${start.getDate()} – ${MN[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
     let html='<div class="week-grid">';
     for(let i=0;i<7;i++){
         const d=new Date(start); d.setDate(d.getDate()+i); const dateStr=formatDate(d);
         const dayTasks=getTasksForDate(dateStr);
-        html+=`<div class="week-day ${dateStr===today?'today':''}" onclick="openModal('${dateStr}')"
-            ondragover="onDragOver(event,this)" ondragleave="onDragLeave(this)" ondrop="onDrop(event,'${dateStr}',this)">
+        html+=`<div class="week-day ${dateStr===today?'today':''}" onclick="openModal('${dateStr}')" ondragover="onDragOver(event,this)" ondragleave="onDragLeave(this)" ondrop="onDrop(event,'${dateStr}',this)">
             <div class="week-day-header">${DN[d.getDay()]}</div>
-            <div class="week-day-number" onclick="event.stopPropagation();jumpToDay('${dateStr}')"
-                style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;">${d.getDate()}</div>
+            <div class="week-day-number" onclick="event.stopPropagation();jumpToDay('${dateStr}')" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;">${d.getDate()}</div>
             ${dayTasks.map(t=>pillHtml(t,dateStr)).join('')}
         </div>`;
     }
@@ -641,24 +478,19 @@ function renderWeek(){
     document.getElementById('calendar-container').innerHTML=html;
 }
 
-// ===================== MONTH VIEW =====================
 function renderMonth(){
-    const year=currentDate.getFullYear(), month=currentDate.getMonth();
-    const DN=t('DAY_NAMES'), MN=t('MONTH_NAMES');
+    const year=currentDate.getFullYear(),month=currentDate.getMonth();
+    const DN=t('DAY_NAMES'),MN=t('MONTH_NAMES');
     document.getElementById('nav-title').textContent=`${MN[month]} ${year}`;
-    const firstDay=new Date(year,month,1).getDay();
-    const daysInMonth=new Date(year,month+1,0).getDate();
-    const daysInPrev=new Date(year,month,0).getDate();
+    const firstDay=new Date(year,month,1).getDay(),daysInMonth=new Date(year,month+1,0).getDate(),daysInPrev=new Date(year,month,0).getDate();
     let html='<div class="month-grid">';
     DN.forEach(d=>{html+=`<div class="month-day-name">${d}</div>`;});
     for(let i=firstDay-1;i>=0;i--) html+=`<div class="month-day other-month"><div class="month-day-number">${daysInPrev-i}</div></div>`;
     for(let d=1;d<=daysInMonth;d++){
         const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         const dayTasks=getTasksForDate(dateStr);
-        html+=`<div class="month-day ${dateStr===today?'today':''}" onclick="openModal('${dateStr}')"
-            ondragover="onDragOver(event,this)" ondragleave="onDragLeave(this)" ondrop="onDrop(event,'${dateStr}',this)">
-            <div class="month-day-number" onclick="event.stopPropagation();jumpToDay('${dateStr}')"
-                style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;display:inline-block;">${d}</div>
+        html+=`<div class="month-day ${dateStr===today?'today':''}" onclick="openModal('${dateStr}')" ondragover="onDragOver(event,this)" ondragleave="onDragLeave(this)" ondrop="onDrop(event,'${dateStr}',this)">
+            <div class="month-day-number" onclick="event.stopPropagation();jumpToDay('${dateStr}')" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;display:inline-block;">${d}</div>
             ${dayTasks.map(t=>pillHtml(t,dateStr)).join('')}
         </div>`;
     }
@@ -668,13 +500,12 @@ function renderMonth(){
     document.getElementById('calendar-container').innerHTML=html;
 }
 
-// ===================== YEAR VIEW =====================
 function renderYear(){
-    const year=currentDate.getFullYear(), DN=t('DAY_NAMES'), MN=t('MONTH_NAMES');
+    const year=currentDate.getFullYear(),DN=t('DAY_NAMES'),MN=t('MONTH_NAMES');
     document.getElementById('nav-title').textContent=`${year}`;
     let html='<div class="year-grid">';
     for(let m=0;m<12;m++){
-        const firstDay=new Date(year,m,1).getDay(), daysInMonth=new Date(year,m+1,0).getDate();
+        const firstDay=new Date(year,m,1).getDay(),daysInMonth=new Date(year,m+1,0).getDate();
         html+=`<div class="year-month"><div class="year-month-title">${MN[m]}</div><div class="year-month-grid">`;
         DN.forEach(d=>{html+=`<div class="year-day-name">${d[0]}</div>`;});
         for(let i=0;i<firstDay;i++) html+=`<div class="year-day"></div>`;
@@ -690,23 +521,14 @@ function renderYear(){
     document.getElementById('calendar-container').innerHTML=html;
 }
 
-// ===================== Pills =====================
 function pillHtml(task,dateStr){
     const cls=getTaskClass(task,dateStr);
     const rc=task.recurrence&&task.recurrence!=='none'?' recurring':'';
     const tl=task.due_time?`<span class="task-time">${displayTimeRange(task.due_time,task.due_time_end)}</span>`:'';
-    return `<span class="task-pill ${cls}${rc}" draggable="true" ondragstart="onDragStart(event,${task.id})"
-        title="${task.task}${task.due_time?' @ '+displayTimeRange(task.due_time,task.due_time_end):''}"
-        onclick="event.stopPropagation()">${tl}${task.task}</span>`;
+    return `<span class="task-pill ${cls}${rc}" draggable="true" ondragstart="onDragStart(event,${task.id})" title="${task.task}${task.due_time?' @ '+displayTimeRange(task.due_time,task.due_time_end):''}" onclick="event.stopPropagation()">${tl}${task.task}</span>`;
 }
 
-// ===================== Print =====================
-function triggerPrint(){
-    if(currentView==='day') buildPrintDay(formatDate(currentDate));
-    else if(currentView==='year') buildPrintYear(currentDate.getFullYear());
-    else buildPrintMonth(currentDate.getFullYear(),currentDate.getMonth());
-    window.print();
-}
+function triggerPrint(){ if(currentView==='day') buildPrintDay(formatDate(currentDate)); else if(currentView==='year') buildPrintYear(currentDate.getFullYear()); else buildPrintMonth(currentDate.getFullYear(),currentDate.getMonth()); window.print(); }
 
 function buildPrintDay(dateStr){
     const [y,m,d]=dateStr.split('-').map(Number);
@@ -718,9 +540,7 @@ function buildPrintDay(dateStr){
     const byHour={};
     timedTasks.forEach(task=>{ const h=parseInt(task.due_time.split(':')[0]); if(!byHour[h]) byHour[h]=[]; byHour[h].push(task); });
     let html=`<div class="print-header"><div><div class="print-title">📅 ${calendarName}</div><div class="print-subtitle">${titleDate}</div></div><div class="print-subtitle">${t('printed')} ${printDate}</div></div>`;
-    if(alldayTasks.length){
-        html+=`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">${t('all_day')}</div>${alldayTasks.map(t=>`<span class="print-task ${getTaskClass(t,dateStr)}" style="display:inline-block;margin:2px;">${t.task}</span>`).join('')}</div>`;
-    }
+    if(alldayTasks.length){ html+=`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">${t('all_day')}</div>${alldayTasks.map(t=>`<span class="print-task ${getTaskClass(t,dateStr)}" style="display:inline-block;margin:2px;">${t.task}</span>`).join('')}</div>`; }
     html+=`<table class="print-day-sched">`;
     for(let h=0;h<24;h++){
         const tasks=byHour[h]||[];
@@ -732,8 +552,8 @@ function buildPrintDay(dateStr){
 }
 
 function buildPrintMonth(year,month){
-    const MN=t('MONTH_NAMES'), DN=t('DAY_NAMES');
-    const firstDay=new Date(year,month,1).getDay(), daysInMonth=new Date(year,month+1,0).getDate(), daysInPrev=new Date(year,month,0).getDate();
+    const MN=t('MONTH_NAMES'),DN=t('DAY_NAMES');
+    const firstDay=new Date(year,month,1).getDay(),daysInMonth=new Date(year,month+1,0).getDate(),daysInPrev=new Date(year,month,0).getDate();
     const printDate=new Date().toLocaleDateString(currentLang==='zh'?'zh-CN':'en-US',{month:'long',day:'numeric',year:'numeric'});
     let html=`<div class="print-header"><div><div class="print-title">📅 ${calendarName}</div><div class="print-subtitle">${MN[month]} ${year}</div></div><div class="print-subtitle">${t('printed')} ${printDate}</div></div><div class="print-month-grid">`;
     DN.forEach(d=>{html+=`<div class="print-day-name">${d}</div>`;});
@@ -750,11 +570,11 @@ function buildPrintMonth(year,month){
 }
 
 function buildPrintYear(year){
-    const MN=t('MONTH_NAMES'), DN=t('DAY_NAMES');
+    const MN=t('MONTH_NAMES'),DN=t('DAY_NAMES');
     const printDate=new Date().toLocaleDateString(currentLang==='zh'?'zh-CN':'en-US',{month:'long',day:'numeric',year:'numeric'});
     let html=`<div class="print-header"><div><div class="print-title">📅 ${calendarName}</div><div class="print-subtitle">${year}</div></div><div class="print-subtitle">${t('printed')} ${printDate}</div></div><div class="print-year-grid">`;
     for(let m=0;m<12;m++){
-        const firstDay=new Date(year,m,1).getDay(), daysInMonth=new Date(year,m+1,0).getDate();
+        const firstDay=new Date(year,m,1).getDay(),daysInMonth=new Date(year,m+1,0).getDate();
         html+=`<div class="print-year-month"><div class="print-year-month-title">${MN[m]}</div><div class="print-year-mini-grid">`;
         DN.forEach(d=>{html+=`<div class="print-year-day-name">${d[0]}</div>`;});
         for(let i=0;i<firstDay;i++) html+=`<div class="print-year-day"></div>`;
@@ -770,7 +590,6 @@ function buildPrintYear(year){
     document.getElementById('print-view').innerHTML=html;
 }
 
-// ===================== Modal =====================
 function openModal(dateStr){ openModalWithTime(dateStr,'',''); }
 function openModalWithTime(dateStr,startTime,endTime){
     selectedDate=dateStr;
@@ -839,7 +658,6 @@ function toggleEditForm(taskId){
     }
 }
 
-// ===================== Task CRUD =====================
 async function addTask(){
     const name=document.getElementById('new-task-name').value.trim();
     const due_date=document.getElementById('new-task-date').value;
@@ -860,11 +678,7 @@ async function toggleTask(taskId,dateStr){
     const res=await fetch(`/api/task/toggle/${taskId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:dateStr})});
     const data=await res.json();
     const task=allTasks.find(t=>t.id===taskId);
-    if(task){
-        const isRec=task.recurrence&&task.recurrence!=='none';
-        if(isRec){ if(data.done===1){if(!task.completed_dates.includes(dateStr)) task.completed_dates.push(dateStr);}else{task.completed_dates=task.completed_dates.filter(d=>d!==dateStr);} }
-        else { task.done=data.done===1; }
-    }
+    if(task){ const isRec=task.recurrence&&task.recurrence!=='none'; if(isRec){ if(data.done===1){if(!task.completed_dates.includes(dateStr)) task.completed_dates.push(dateStr);}else{task.completed_dates=task.completed_dates.filter(d=>d!==dateStr);} } else { task.done=data.done===1; } }
     if(data.new_task) allTasks.push({id:data.new_task.id,task:data.new_task.task,due_date:data.new_task.due_date,due_time:data.new_task.due_time||'',due_time_end:data.new_task.due_time_end||'',done:false,recurrence:data.new_task.recurrence||'none',completed_dates:[]});
     renderModalTasks(); render();
 }

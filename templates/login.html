@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
         (function() {
@@ -13,7 +14,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root { --bg: #f0f2f5; --card: #ffffff; --border: #e4e7ec; --text: #1a1d23; --muted: #6b7280; --accent: #3b82f6; --red: #ef4444; }
         [data-theme="dark"] { --bg: #0f1117; --card: #1a1d23; --border: #2d3038; --text: #f1f5f9; --muted: #94a3b8; }
-        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; transition: background 0.3s, color 0.3s; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; transition: background 0.3s, color 0.3s; font-size: 15px; }
         .box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 36px 32px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
         .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
         h1 { font-size: 22px; font-weight: 700; }
@@ -27,6 +28,12 @@
         .footer { text-align: center; margin-top: 20px; font-size: 14px; color: var(--muted); }
         .footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
         .flash-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-bottom: 16px; }
+        @media (max-width: 600px) {
+            body { font-size: 16px; padding: 16px; }
+            .box { padding: 28px 20px; }
+            h1 { font-size: 20px; }
+            input, .btn { font-size: 16px; }
+        }
     </style>
 </head>
 <body>
@@ -60,54 +67,20 @@
 
     <script>
         const LANG = {
-            en: {
-                login: 'Login', username: 'Username', password: 'Password',
-                username_ph: 'Enter your username', password_ph: 'Enter your password',
-                login_btn: 'Login', no_account: "Don't have an account?", register: 'Register'
-            },
-            zh: {
-                login: '登录', username: '用户名', password: '密码',
-                username_ph: '输入用户名', password_ph: '输入密码',
-                login_btn: '登录', no_account: '没有账户？', register: '注册'
-            }
+            en: { login:'Login', username:'Username', password:'Password', username_ph:'Enter your username', password_ph:'Enter your password', login_btn:'Login', no_account:"Don't have an account?", register:'Register' },
+            zh: { login:'登录', username:'用户名', password:'密码', username_ph:'输入用户名', password_ph:'输入密码', login_btn:'登录', no_account:'没有账户？', register:'注册' }
         };
         let currentLang = localStorage.getItem('lang') || 'en';
-
-        function t(key) { return LANG[currentLang][key] || key; }
-
         function applyLang() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.dataset.i18n;
-                if (LANG[currentLang][key]) el.textContent = LANG[currentLang][key];
-            });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.dataset.i18nPlaceholder;
-                if (LANG[currentLang][key]) el.placeholder = LANG[currentLang][key];
-            });
+            document.querySelectorAll('[data-i18n]').forEach(el => { const k=el.dataset.i18n; if(LANG[currentLang][k]) el.textContent=LANG[currentLang][k]; });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const k=el.dataset.i18nPlaceholder; if(LANG[currentLang][k]) el.placeholder=LANG[currentLang][k]; });
         }
-
-        function toggleLang() {
-            currentLang = currentLang === 'en' ? 'zh' : 'en';
-            localStorage.setItem('lang', currentLang);
-            applyLang();
-            updateLangBtn();
-        }
-
-        function updateLangBtn() {
-            document.getElementById('lang-btn').textContent = currentLang === 'en' ? '中文' : 'EN';
-        }
-
-        function toggleDark() {
-            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            document.getElementById('dark-btn').textContent = next === 'dark' ? '☀️' : '🌙';
-        }
-
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
-        applyLang();
-        updateLangBtn();
+        function toggleLang() { currentLang=currentLang==='en'?'zh':'en'; localStorage.setItem('lang',currentLang); applyLang(); updateLangBtn(); }
+        function updateLangBtn() { document.getElementById('lang-btn').textContent=currentLang==='en'?'中文':'EN'; }
+        function toggleDark() { const n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',n); localStorage.setItem('theme',n); document.getElementById('dark-btn').textContent=n==='dark'?'☀️':'🌙'; }
+        const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+        document.getElementById('dark-btn').textContent=isDark?'☀️':'🌙';
+        applyLang(); updateLangBtn();
     </script>
 </body>
 </html>
