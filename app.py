@@ -56,12 +56,15 @@ def init_db():
                 id SERIAL PRIMARY KEY,
                 task TEXT NOT NULL,
                 user_id INTEGER NOT NULL,
-                folder_id INTEGER NOT NULL,
                 done INTEGER DEFAULT 0,
-                FOREIGN KEY (user_id) REFERENCES users (id),
-                FOREIGN KEY (folder_id) REFERENCES folders (id)
+                FOREIGN KEY (user_id) REFERENCES users (id)
             )
         """)
+        # Add folder_id column if it doesn't exist yet
+        try:
+            cur.execute("ALTER TABLE tasks ADD COLUMN folder_id INTEGER")
+        except:
+            conn.rollback()  # column already exists, ignore
     else:
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -83,12 +86,16 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 task TEXT NOT NULL,
                 user_id INTEGER NOT NULL,
-                folder_id INTEGER NOT NULL,
                 done INTEGER DEFAULT 0,
-                FOREIGN KEY (user_id) REFERENCES users (id),
-                FOREIGN KEY (folder_id) REFERENCES folders (id)
+                FOREIGN KEY (user_id) REFERENCES users (id)
             )
         """)
+        # Add folder_id column if it doesn't exist yet
+        try:
+            cur.execute("ALTER TABLE tasks ADD COLUMN folder_id INTEGER")
+        except:
+            pass  # column already exists, ignore
+
     conn.commit()
     cur.close()
     conn.close()
@@ -158,12 +165,10 @@ def folder(folder_id):
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     else:
         cur = conn.cursor()
-    # Get the folder (make sure it belongs to this user)
     query(cur, is_postgres, "SELECT * FROM folders WHERE id = %s AND user_id = %s", (folder_id, current_user.id))
     folder = cur.fetchone()
     if not folder:
         return redirect(url_for("home"))
-    # Get tasks in this folder
     query(cur, is_postgres, "SELECT * FROM tasks WHERE folder_id = %s AND user_id = %s", (folder_id, current_user.id))
     todos = cur.fetchall()
     cur.close()
@@ -175,9 +180,7 @@ def folder(folder_id):
 def delete_folder(folder_id):
     conn, is_postgres = get_db()
     cur = conn.cursor()
-    # Delete all tasks in the folder first
     query(cur, is_postgres, "DELETE FROM tasks WHERE folder_id = %s AND user_id = %s", (folder_id, current_user.id))
-    # Then delete the folder
     query(cur, is_postgres, "DELETE FROM folders WHERE id = %s AND user_id = %s", (folder_id, current_user.id))
     conn.commit()
     cur.close()
@@ -205,7 +208,6 @@ def delete(id):
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     else:
         cur = conn.cursor()
-    # Get folder_id before deleting so we can redirect back
     query(cur, is_postgres, "SELECT * FROM tasks WHERE id = %s AND user_id = %s", (id, current_user.id))
     task = cur.fetchone()
     folder_id = task["folder_id"] if task else None
